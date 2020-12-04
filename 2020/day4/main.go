@@ -25,6 +25,16 @@ func main() {
 	pass := map[string]string{}
 	var pairs []string
 
+	check := func(pass map[string]string) {
+		if hasRequiredFields(pass) {
+			haveFields++
+
+			if validateFields(pass) {
+				valid++
+			}
+		}
+	}
+
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
 		pairs = strings.Fields(s.Text())
@@ -32,12 +42,7 @@ func main() {
 
 		if len(pairs) == 0 {
 			// blank line, we have read a passport.
-			if hasRequiredFields(pass) {
-				haveFields++
-			}
-			if validateFields(pass) {
-				valid++
-			}
+			check(pass)
 			pass = map[string]string{}
 			continue
 		}
@@ -51,32 +56,28 @@ func main() {
 		}
 	}
 
+	// check final passport in the file
 	if len(pairs) > 0 {
-		if hasRequiredFields(pass) {
-			haveFields++
-		}
-		if validateFields(pass) {
-			valid++
-		}
+		check(pass)
 	}
 
 	fmt.Println(haveFields, "passports with required fields")
 	fmt.Println(valid, "valid passports")
 }
 
-func validateFields(p map[string]string) bool {
-	for k, f := range fieldValidation {
-		if !f(p[k]) {
-			fmt.Println("invalid: ", k, p[k])
+func hasRequiredFields(p map[string]string) bool {
+	for k, _ := range fieldValidation {
+		if _, ok := p[k]; !ok {
 			return false
 		}
 	}
 	return true
 }
 
-func hasRequiredFields(p map[string]string) bool {
-	for k, _ := range fieldValidation {
-		if _, ok := p[k]; !ok {
+func validateFields(p map[string]string) bool {
+	for k, f := range fieldValidation {
+		if !f(p[k]) {
+			fmt.Println("invalid: ", k, p[k])
 			return false
 		}
 	}

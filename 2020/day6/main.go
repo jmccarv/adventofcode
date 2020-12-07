@@ -14,9 +14,8 @@ type group struct {
 func main() {
 	p1Count := 0
 	p2Count := 0
-	chGroup := getGroups()
 
-	for g := range chGroup {
+	for g := range getGroups() {
 		for _, a := range g.answers {
 			if a == g.nrRespondents {
 				p2Count++

@@ -70,25 +70,25 @@ func part2(color string) int {
 	return ret
 }
 
-//carries map[string]int
 func part1(color string) int {
-	// Look through each color bag to see if it can contain color
-	nr := 0
+	// We want to carry the bag of color 'color' in at least one other bag
+	// Return how many different bag colors would be valid for the outermost bag
 
+	// We loop through all the outer bags (those in the bags map)
+	// and check all the bags contained in them to see if our passed in 'color'
+	// is found nested in there...
+	nr := 0
 	for _, b := range bags {
 		if find1(color, b) {
 			nr++
 		}
 	}
-
 	return nr
 }
 
 func find1(color string, b bag) bool {
-	if b.carries == nil {
-		return false
-	}
-
+	// Look through all the bags carried by 'b' and if any
+	// of them contain the bag 'color' return true
 	for k, _ := range b.carries {
 		if color == k {
 			return true

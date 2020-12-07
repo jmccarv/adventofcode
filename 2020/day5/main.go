@@ -8,7 +8,7 @@ import (
 
 func main() {
 	s := bufio.NewScanner(os.Stdin)
-	var maxID int
+	maxID := 0
 	minID := 128*8 + 8
 	var occupied [128*8 + 8]bool
 

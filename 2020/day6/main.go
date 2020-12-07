@@ -6,15 +6,27 @@ import (
 	"os"
 )
 
-type group map[rune]bool
+type group struct {
+	nrRespondents int
+	answers       map[rune]int
+}
 
 func main() {
-	count := 0
+	p1Count := 0
+	p2Count := 0
 	chGroup := getGroups()
+
 	for g := range chGroup {
-		count += len(g)
+		for _, a := range g.answers {
+			if a == g.nrRespondents {
+				p2Count++
+			}
+		}
+		p1Count += len(g.answers)
 	}
-	fmt.Println("Total count:", count)
+
+	fmt.Println("Part 1 count:", p1Count)
+	fmt.Println("Part 2 count:", p2Count)
 }
 
 func getGroups() chan group {
@@ -22,22 +34,23 @@ func getGroups() chan group {
 
 	go func() {
 		s := bufio.NewScanner(os.Stdin)
-		g := make(group)
+		g := group{0, make(map[rune]int)}
 
 		for s.Scan() {
 			line := s.Text()
-			if len(line) == 0 && len(g) > 0 {
+			if len(line) == 0 && g.nrRespondents > 0 {
 				ch <- g
-				g = make(group)
+				g = group{0, make(map[rune]int)}
 				continue
 			}
 
 			for _, r := range line {
-				g[r] = true
+				g.answers[r]++
 			}
+			g.nrRespondents++
 		}
 
-		if len(g) > 0 {
+		if g.nrRespondents > 0 {
 			ch <- g
 		}
 

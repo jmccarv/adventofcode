@@ -27,7 +27,6 @@ type machine struct {
 }
 
 func main() {
-
 	s := bufio.NewScanner(os.Stdin)
 	m := newMachine()
 
@@ -50,7 +49,7 @@ func main() {
 	fmt.Println("Part1:", m)
 
 	part2(m)
-	fmt.Printf("Part2: %+v\n", m.regs)
+	fmt.Println("Part2:", m)
 }
 
 func part2(m *machine) {

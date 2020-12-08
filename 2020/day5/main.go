@@ -6,8 +6,7 @@ import (
 	"os"
 )
 
-func bspish(code string, up rune) int {
-	val := 0
+func bspish(code string, up rune) (val int) {
 	Δ := 1 << (len(code) - 1)
 	for _, c := range code {
 		if c == up {

@@ -42,12 +42,10 @@ func main() {
 	}
 	fmt.Println("Max ID:", maxID)
 
-	myID := 0
 	for i := minID + 1; i < maxID; i++ {
 		if !occupied[i] {
-			myID = i
+			fmt.Println(" My ID:", i)
 			break
 		}
 	}
-	fmt.Println(" My ID:", myID)
 }

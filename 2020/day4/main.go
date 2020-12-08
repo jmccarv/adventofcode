@@ -47,7 +47,7 @@ func main() {
 			continue
 		}
 
-		// Parse the paris of key:val into our p map
+		// Parse the paris of key:val into our pass map
 		for _, p := range pairs {
 			fields := strings.Split(p, ":")
 			if len(fields) == 2 {

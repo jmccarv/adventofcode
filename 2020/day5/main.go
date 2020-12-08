@@ -20,8 +20,8 @@ func bspish(code string, up rune) (val int) {
 func main() {
 	s := bufio.NewScanner(os.Stdin)
 	maxID := 0
-	minID := 128*8 + 8
-	var occupied [128*8 + 8]bool
+	minID := 128<<3 + 8
+	var occupied [128<<3 + 8]bool
 
 	for s.Scan() {
 		bpass := s.Text()

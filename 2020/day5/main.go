@@ -27,11 +27,8 @@ func main() {
 	for s.Scan() {
 		bpass := s.Text()
 
-		rows := bpass[0:7]
-		cols := bpass[7:]
-
-		row := bspish(rows, 'B')
-		col := bspish(cols, 'R')
+		row := bspish(bpass[0:7], 'B')
+		col := bspish(bpass[7:], 'R')
 
 		id := row<<3 | col
 		occupied[id] = true

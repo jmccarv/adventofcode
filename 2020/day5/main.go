@@ -14,7 +14,7 @@ func bspish(code string, up rune) (val int) {
 		}
 		Δ >>= 1
 	}
-	return val
+	return
 }
 
 func main() {

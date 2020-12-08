@@ -76,7 +76,7 @@ func part2(m *machine) {
 
 		// We've modified the code, try it out
 		m.run()
-		if m.regs.pc >= len(m.mem) {
+		if m.regs.pc == len(m.mem) {
 			// hooray, we fixed it!
 			return
 		}

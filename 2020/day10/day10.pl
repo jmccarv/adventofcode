@@ -22,26 +22,50 @@ sub main {
     print "part2: ".part2_redux(@input)."\n";
 }
 
+#
+# The key here is to break the input down in to multiple small(er)
+# graphs instead of one giant graph. This makes the solution run
+# much MUCH faster.
+# 
+# We only need a graph when there is more than one path possible.
+# Consider this part of the example_input (0 added to front):
+#   0 1 4 5 6 7 10 11 12
+#
+# This can be broken into 3 graphs:
+#   0-1
+#   1-4 4-5 4-6 4-7 5-6 5-7 6-7
+#   7-10 10-11 10-12 11-12
+# 
+# This is possible because, for instance, there is only one
+# path to get from 7 to 10, so we can split the graph there.
+#
+# Then we can compute the number of possible paths by taking
+# the product of possible paths through each individual graph
+#
 sub part2_redux {
     my @input = @_;
     my @graphs;
 
     my @prev;
-    my $g;
+    my $g = Graph->new;
     for my $n (@input) {
+        # Remove any previous elements that are not reachable from $n
         shift @prev while @prev && $prev[0] < $n-3;
-        if ((@prev && $prev[$#prev] + 3 == $n) || ($g && !@prev)) {
+
+        if ( (@prev && $prev[$#prev] + 3 == $n)   # safe to split the graph here
+              || ($g && !@prev)                   # no previous nodes reachable, safe to split
+        ) {
+            # Save the current graph (if we have one) and start a new one
             push @graphs, $g if $g->edges;
-            $g = undef;
+            $g = Graph->new;
         }
 
-        $g = Graph->new unless $g;
         $g->add_edge($_, $n) for @prev;
-
         push @prev, $n;
     }
     push @graphs, $g if $g->edges;
 
+    # Sanity check
     $_->expect_dag for @graphs;
 
     print "nr graphs: ".@graphs."\n";
@@ -58,8 +82,9 @@ sub part2_redux {
     $ret;
 }
 
-# This works, but so, so slow
+# This works, but so, so slow (and consumes much memory for large graphs)
 # Basically unusable for the real input set
+# Left here for posterity. Don't try this at home.
 sub part2 {
     my @input = @_;
     my $g = Graph->new;

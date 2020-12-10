@@ -52,9 +52,7 @@ sub part2_redux {
         # Remove any previous elements that are not reachable from $n
         shift @prev while @prev && $prev[0] < $n-3;
 
-        if ( (@prev && $prev[$#prev] + 3 == $n)   # safe to split the graph here
-              || ($g && !@prev)                   # no previous nodes reachable, safe to split
-        ) {
+        if ( !@prev || $prev[$#prev]+3 == $n) {  # safe to split here
             # Save the current graph (if we have one) and start a new one
             push @graphs, $g if $g->edges;
             $g = Graph->new;

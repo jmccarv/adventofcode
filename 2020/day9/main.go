@@ -54,8 +54,10 @@ func part1(preamble int, input []int) int {
 		}
 		rb = rb.next
 	}
+	// Now the ring looks something like this:
+	// rb -> n1{ sums:[n1+n2 n1+n3 n1+n4] } n2{ sums:[n2+n3 n2+n4] n3{ sums:[n3+n4] } -> n1
 
-	// prev holds the next number we'll add to the ring.
+	// prev holds the next number we'll add to the ring. (n4 in our above example)
 	prev := input[preamble-1]
 
 	for _, n := range input[preamble:] {
@@ -83,6 +85,12 @@ func part2(nr int, input []int) int {
 		sum, min, max := n1, n1, n1
 
 		for _, n2 := range input[i+1:] {
+			sum += n2
+
+			if sum > nr {
+				break
+			}
+
 			if n2 < min {
 				min = n2
 			}
@@ -90,14 +98,8 @@ func part2(nr int, input []int) int {
 				max = n2
 			}
 
-			sum += n2
-
 			if sum == nr {
 				return min + max
-			}
-
-			if sum > nr {
-				break
 			}
 		}
 	}
@@ -122,7 +124,7 @@ func newRing(nrNodes int) *ringNode {
 func (r *ringNode) String() string {
 	ret := ""
 	r.walk(func(n *ringNode) {
-		ret += fmt.Sprintf("%d : %+v\n", n.num, n.sums)
+		ret += fmt.Sprintf("%d %+v\n", n.num, n.sums)
 	})
 	return ret
 }

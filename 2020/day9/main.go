@@ -34,7 +34,9 @@ func main() {
 		nums = append(nums, x)
 	}
 
-	fmt.Println("part1:", part1(preamble, nums))
+	nr := part1(preamble, nums)
+	fmt.Println("part1:", nr)
+	fmt.Println("part2:", part2(nr, nums))
 }
 
 func part1(preamble int, input []int) int {
@@ -67,6 +69,32 @@ func part1(preamble int, input []int) int {
 		})
 	}
 
+	return 0
+}
+
+func part2(nr int, input []int) int {
+	for i, n1 := range input[0:] {
+		sum, min, max := n1, n1, n1
+
+		for _, n2 := range input[i+1:] {
+			if n2 < min {
+				min = n2
+			}
+			if n2 > max {
+				max = n2
+			}
+
+			sum += n2
+
+			if sum == nr {
+				return min + max
+			}
+
+			if sum > nr {
+				break
+			}
+		}
+	}
 	return 0
 }
 

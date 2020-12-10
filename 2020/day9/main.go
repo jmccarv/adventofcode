@@ -40,8 +40,13 @@ func main() {
 }
 
 func part1(preamble int, input []int) int {
+	// We only need to keep preamble-1 nodes in our ring
+	// in order to keep track of all the necessary sums.
+	// If preamble is 4, the ring will look like:
+	// rb -> n1{ } -> n2{ } -> n3{ } -> n1
 	rb := newRing(preamble - 1)
 
+	// Prepouplate ring with all our sums
 	for i, n1 := range input[0 : preamble-1] {
 		rb.num = n1
 		for _, n2 := range input[i+1 : preamble] {
@@ -50,7 +55,9 @@ func part1(preamble int, input []int) int {
 		rb = rb.next
 	}
 
+	// prev holds the next number we'll add to the ring.
 	prev := input[preamble-1]
+
 	for _, n := range input[preamble:] {
 		fmt.Println(rb)
 
@@ -58,14 +65,13 @@ func part1(preamble int, input []int) int {
 			return n
 		}
 
-		// Add our new number to our ring, which we keep in prev
+		// Add the next number to the ring and hold on to our current n for next time
 		rb = rb.add(prev)
 		prev = n
 
-		// Now compute sums of this number + all others in the ring
+		// Now compute sums of this number (n) + all others in the ring
 		rb.walk(func(node *ringNode) {
 			node.sums = append(node.sums, node.num+n)
-			fmt.Println("walk: n=", n, "  num=", node.num, "  sums:", node.sums)
 		})
 	}
 
@@ -98,6 +104,7 @@ func part2(nr int, input []int) int {
 	return 0
 }
 
+// Create a new ring buffer with nrNodes nodes
 func newRing(nrNodes int) *ringNode {
 	rb := &ringNode{}
 	node := rb
@@ -120,8 +127,7 @@ func (r *ringNode) String() string {
 	return ret
 }
 
-// If callback returns false, traversal halts and walk() returns false
-// Returns true if we completed our walk
+// Walk each node in the ring calling callback() on each one
 func (r *ringNode) walk(callback func(*ringNode)) {
 	p := r
 	for {
@@ -133,14 +139,16 @@ func (r *ringNode) walk(callback func(*ringNode)) {
 	}
 }
 
-// Returns a pointer to the newly added node (now at the 'end' of the ring)
-// and the new 'head' of the ring
+// Overwrites 'head' of the ring with num and advances
+// the head of the ring to the next node.
+// Returns a pointer to the new 'head' of the ring
 func (r *ringNode) add(num int) *ringNode {
 	r.num = num
 	r.sums = []int{}
 	return r.next
 }
 
+// Search the ring for the given sum. Returns true if found.
 func (r *ringNode) findSum(num int) bool {
 	found := false
 

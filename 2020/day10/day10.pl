@@ -55,6 +55,7 @@ sub part2_redux {
             # Save the current graph (if we have one) and start a new one
             push @graphs, $g if $g->edges > 1;
             $g = Graph->new;
+            @prev = ()
         }
 
         $g->add_edge($_, $n) for @prev;

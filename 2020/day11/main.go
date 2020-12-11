@@ -2,13 +2,12 @@ package main
 
 import (
 	"bufio"
-	"fmt"
-	//"log"
 	"bytes"
+	"fmt"
 	"os"
 )
 
-// strings are read only and relatively expensive to modify
+// strings are read only and relatively expensive to modify.
 // since we'll be modifying the grid quite a bit I'm going to
 // use byte slices instead of strings.
 type grid [][]byte

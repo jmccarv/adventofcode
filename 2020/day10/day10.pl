@@ -31,16 +31,15 @@ sub main {
 # Consider this part of the example_input (0 added to front):
 #   0 1 4 5 6 7 10 11 12
 #
-# This can be broken into 3 graphs:
-#   0-1
+# This can be broken into 2 graphs:
 #   1-4 4-5 4-6 4-7 5-6 5-7 6-7
-#   7-10 10-11 10-12 11-12
+#   10-11 10-12 11-12
 # 
 # This is possible because, for instance, there is only one
 # path to get from 7 to 10, so we can split the graph there.
 #
 # Then we can compute the number of possible paths by taking
-# the product of possible paths through each individual graph
+# the product of possible paths through each graph having more than one path
 #
 sub part2_redux {
     my @input = @_;
@@ -54,7 +53,7 @@ sub part2_redux {
 
         if (!@prev || $prev[$#prev]+3 == $n) {  # safe to split here
             # Save the current graph (if we have one) and start a new one
-            push @graphs, $g if $g->edges;
+            push @graphs, $g if $g->edges > 1;
             $g = Graph->new;
         }
 

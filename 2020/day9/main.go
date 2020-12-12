@@ -8,9 +8,13 @@ import (
 	"strconv"
 )
 
+// A ring buffer to store input numbers. Numbers are put in the ring in order
+// and the pointer used to access the ring always points at the 'head' or
+// oldest entry in the ring. Oldest entry is overwritten by the next number
+// added to the ring and around and around we go.
 type ringNode struct {
-	num  int
-	sums []int
+	num  int   // the input number
+	sums []int // slice of sums of this number plus each previous number in the ring
 	next *ringNode
 }
 
@@ -69,14 +73,14 @@ func part1(preamble int, input []int) int {
 
 		// Add the next number to the ring and hold on to our current n for next time
 		rb = rb.add(prev)
-		prev = n
 
-		// Now compute sums of this number (n) + all others in the ring
+		// Now compute sums of our previous number (prev) + all others in the ring
 		rb.walk(func(node *ringNode) {
 			node.sums = append(node.sums, node.num+n)
 		})
-	}
 
+		prev = n
+	}
 	return 0
 }
 
@@ -121,14 +125,6 @@ func newRing(nrNodes int) *ringNode {
 	return rb
 }
 
-func (r *ringNode) String() string {
-	ret := ""
-	r.walk(func(n *ringNode) {
-		ret += fmt.Sprintf("%d %+v\n", n.num, n.sums)
-	})
-	return ret
-}
-
 // Walk each node in the ring calling callback() on each one
 func (r *ringNode) walk(callback func(*ringNode)) {
 	p := r
@@ -141,8 +137,11 @@ func (r *ringNode) walk(callback func(*ringNode)) {
 	}
 }
 
-// Overwrites 'head' of the ring with num and advances
+// r is considered the 'head' of the ring -- it's assumed to be
+// the earliest/oldest entry in the ring.
+// add() overwrites 'head' of the ring with num and advances
 // the head of the ring to the next node.
+//
 // Returns a pointer to the new 'head' of the ring
 func (r *ringNode) add(num int) *ringNode {
 	r.num = num
@@ -161,6 +160,13 @@ func (r *ringNode) findSum(num int) bool {
 			}
 		}
 	})
-
 	return found
+}
+
+func (r *ringNode) String() string {
+	ret := ""
+	r.walk(func(n *ringNode) {
+		ret += fmt.Sprintf("%d %+v\n", n.num, n.sums)
+	})
+	return ret
 }

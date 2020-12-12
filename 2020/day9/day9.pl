@@ -39,8 +39,7 @@ sub part1 {
         push @{$_->{s}}, $n + $_->{n} for @sums;
         $prev = $n;
     }
-
-    return 0;
+    0;
 }
 
 sub part2 {

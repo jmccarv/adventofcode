@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use Data::Dumper;
 
 exit main();
 
@@ -58,6 +57,4 @@ sub part2 {
     0;
 }
 
-sub pretty {
-    print "$_->{n} [".join(' ', @{$_->{s}})."]\n" for @_;
-}
+sub pretty { print "$_->{n} [".join(' ', @{$_->{s}})."]\n" for @_ }

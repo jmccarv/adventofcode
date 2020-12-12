@@ -7,6 +7,12 @@ import (
 	"os"
 )
 
+const (
+	floor        = '.'
+	emptySeat    = 'L'
+	occupiedSeat = '#'
+)
+
 // strings are read only and relatively expensive to modify.
 // since we'll be modifying the grid quite a bit I'm going to
 // use byte slices instead of strings.
@@ -30,6 +36,8 @@ var directions = []location{
 
 func main() {
 	// Start with a completely empty line at the top of the grid
+	// We'll eventually pad the perimiter of the grid with spaces as an
+	// easy way to know when we've gone out of bounds.
 	var g grid = [][]byte{[]byte{}}
 
 	s := bufio.NewScanner(os.Stdin)
@@ -41,11 +49,11 @@ func main() {
 	g[0] = bytes.Repeat([]byte{' '}, l+1)
 	g = append(g, bytes.Repeat([]byte{' '}, l+1))
 
-	fmt.Println("part1:", partx(g, 4, func(g grid, l location) int { return g.occupiedNeighbors(l) }))
-	fmt.Println("part2:", partx(g, 5, func(g grid, l location) int { return g.occupiedLineOfSight(l) }))
+	fmt.Println("part1:", run(g, 4, func(g grid, l location) int { return g.occupiedNeighbors(l) }))
+	fmt.Println("part2:", run(g, 5, func(g grid, l location) int { return g.occupiedLineOfSight(l) }))
 }
 
-func partx(g grid, threshold int, occupancy func(g grid, l location) int) int {
+func run(g grid, threshold int, occupancy func(g grid, l location) int) int {
 	var m bool
 	for {
 		g, m = g.mutate(threshold, occupancy)
@@ -56,8 +64,11 @@ func partx(g grid, threshold int, occupancy func(g grid, l location) int) int {
 	return 0
 }
 
+// The callback is used to count the number of occupied seats visible from a given location
+// An ooccupied seat that can see n occupied seats where n > threshold will be emptied
+//
 // Returns the new grid and whether it differs from the old grid
-func (g grid) mutate(maxOccupied int, occupancy func(g grid, l location) int) (grid, bool) {
+func (g grid) mutate(threshold int, occupancy func(g grid, l location) int) (grid, bool) {
 	mutated := false
 	new := g.copy()
 
@@ -66,27 +77,31 @@ func (g grid) mutate(maxOccupied int, occupancy func(g grid, l location) int) (g
 			l := location{r, c}
 			x := g.at(l)
 
-			if x == '.' {
+			if x == floor {
+				// floor -- ignore, no need to count occupancy
 				continue
 			}
 
+			// find the number of occupied seats visible from this location
 			o := occupancy(g, l)
 
 			switch x {
-			case 'L':
+			case emptySeat:
+				// empty seats are filled if there are no visible occupied seats
 				if o == 0 {
-					new[r][c] = '#'
+					new.set(l, occupiedSeat)
 					mutated = true
 				}
-			case '#':
-				if o >= maxOccupied {
-					new[r][c] = 'L'
+			case occupiedSeat:
+				// occupied seats are emptied if the number of visible occupied
+				// seats meets or exceeds the threshold
+				if o >= threshold {
+					new.set(l, emptySeat)
 					mutated = true
 				}
 			}
 		}
 	}
-
 	return new, mutated
 }
 
@@ -98,16 +113,19 @@ func (g grid) copy() grid {
 	return n
 }
 
+// Return the number of adjacent seats that are occupied
 func (g grid) occupiedNeighbors(l location) int {
 	var ret int
 	for _, d := range directions {
-		if g.at(l.add(d)) == '#' {
+		if g.at(l.add(d)) == occupiedSeat {
 			ret++
 		}
 	}
 	return ret
 }
 
+// Used for part 2 of the puzzle -- looks in each direction for the
+// first visible seat and returns the number of those that are occupied.
 func (g grid) occupiedLineOfSight(origin location) int {
 	var ret int
 
@@ -117,15 +135,14 @@ func (g grid) occupiedLineOfSight(origin location) int {
 		for g.validLocation(l) {
 			l = l.add(d)
 			switch g.at(l) {
-			case '#':
+			case occupiedSeat:
 				ret++
 				break out
-			case 'L':
+			case emptySeat:
 				break out
 			}
 		}
 	}
-
 	return ret
 }
 
@@ -133,14 +150,19 @@ func (g grid) at(l location) byte {
 	return g[l.r][l.c]
 }
 
+func (g grid) set(l location, to byte) {
+	g[l.r][l.c] = to
+}
+
 func (g grid) validLocation(l location) bool {
 	return g.at(l) != ' '
 }
 
+// returns the number of occupied seats in the grid.
 func (g grid) occupied() int {
 	count := 0
 	for r := 1; r < len(g)-1; r++ {
-		count += bytes.Count(g[r], []byte{'#'})
+		count += bytes.Count(g[r], []byte{occupiedSeat})
 	}
 	return count
 }

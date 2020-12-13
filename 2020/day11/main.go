@@ -13,14 +13,17 @@ const (
 	occupiedSeat = '#'
 )
 
-// strings are read only and relatively expensive to modify.
-// since we'll be modifying the grid quite a bit I'm going to
-// use byte slices instead of strings.
-type grid [][]byte
-
 type location struct {
 	r int
 	c int
+}
+
+// strings are read only and relatively expensive to modify.
+// since we'll be modifying the grid quite a bit I'm going to
+// use byte slices instead of strings.
+type game struct {
+	grid      [][]byte
+	locations []location
 }
 
 var directions = []location{
@@ -38,7 +41,9 @@ func main() {
 	// Start with a completely empty line at the top of the grid
 	// We'll eventually pad the perimiter of the grid with spaces as an
 	// easy way to know when we've gone out of bounds.
-	var g grid = [][]byte{[]byte{}}
+	//var g grid = [][]byte{[]byte{}}
+
+	var g game
 
 	s := bufio.NewScanner(os.Stdin)
 

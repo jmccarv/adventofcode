@@ -1,0 +1,29 @@
+example_input
+part1: {59 5 4} 295
+part2: 1068781
+
+example2
+part1: {7 6 1} 42
+part2: 754018
+
+example3
+part1: {7 6 2} 42
+part2: 779210
+
+example4
+part1: {7 6 1} 42
+part2: 1261476
+
+example5
+part1: {37 36 1} 1332
+part2: 1202161486
+
+input
+part1: {461 5 13} 2305
+part2: 552612234243498
+
+part2 brute force, do not recommend :(
+15:57:31 slam@salem ~/src/git/adventofcode.com/2020/day13 $ time go run main2.go < input
+real	200m5.766s
+user	3138m55.452s
+sys	8m44.294s

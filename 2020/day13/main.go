@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 type bus struct {
-	id   int
-	wait int
+	id   uint64
+	wait uint64
+	ofs  uint64
 }
 
 func main() {
@@ -22,21 +25,25 @@ func main() {
 		log.Fatal("Invalid input")
 	}
 
-	var b bus
-	for _, n := range strings.Split(getLine(s), ",") {
+	var nextBus bus
+	var busses []bus
+	for i, n := range strings.Split(getLine(s), ",") {
 		id, err := strconv.Atoi(n)
 		if err != nil {
 			continue
 		}
 
-		x := id - first%id
-		if b.id == 0 || x < b.wait {
-			b.id = id
-			b.wait = x
-		}
-	}
-	fmt.Println("part1:", b, b.id*b.wait)
+		b := bus{id: uint64(id), wait: uint64(id - first%id), ofs: uint64(i)}
 
+		if nextBus.id == 0 || b.wait < nextBus.wait {
+			nextBus = b
+		}
+
+		busses = append(busses, b)
+	}
+	fmt.Println("part1:", nextBus, nextBus.id*nextBus.wait)
+
+	fmt.Println("part2:", part2(busses))
 }
 
 func getLine(s *bufio.Scanner) string {
@@ -44,4 +51,64 @@ func getLine(s *bufio.Scanner) string {
 		log.Fatal("Invalid input")
 	}
 	return s.Text()
+}
+
+const batch = 100000
+
+func part2(busses []bus) uint64 {
+	sort.Slice(busses, func(i, j int) bool { return busses[i].id > busses[j].id })
+
+	//ctx, cancel := context.WithCancel(context.Background())
+	work := make(chan uint64)
+	ret := make(chan uint64)
+
+	for i := 0; i < runtime.GOMAXPROCS(0); i++ {
+		go hunt(busses, work, ret)
+	}
+
+	low := busses[0].id*2 - uint64(busses[0].ofs)
+	var found uint64
+
+out:
+	for id := low; id > low-1; id += busses[0].id * batch {
+		select {
+		case work <- id:
+		case found = <-ret:
+			break out
+		}
+	}
+	close(work)
+
+	if found == 0 {
+		return 0
+	}
+
+	for i := 1; i < runtime.GOMAXPROCS(0); i++ {
+		x := <-ret
+		if x > 0 && x < found {
+			found = x
+		}
+	}
+
+	return found
+}
+
+func hunt(busses []bus, work, ret chan uint64) {
+	for start := range work {
+		for id := start; id < id+batch; id += busses[0].id {
+			good := true
+			for _, b := range busses[1:] {
+				//fmt.Printf("   -> %+v : %d\n", b, (id+b.ofs)%b.id)
+				if (id+b.ofs)%b.id != 0 {
+					good = false
+					break
+				}
+			}
+			if good {
+				ret <- id
+				return
+			}
+		}
+	}
+	ret <- 0
 }

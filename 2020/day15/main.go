@@ -24,6 +24,7 @@ func main() {
 	}
 
 	fmt.Println("part1:", part1(2020, nums))
+	fmt.Println("part2:", part1(30000000, nums))
 }
 
 type ent struct {

@@ -58,7 +58,6 @@ const batch = 100000
 func part2(busses []bus) uint64 {
 	sort.Slice(busses, func(i, j int) bool { return busses[i].id > busses[j].id })
 
-	//ctx, cancel := context.WithCancel(context.Background())
 	work := make(chan uint64)
 	ret := make(chan uint64)
 
@@ -98,7 +97,6 @@ func hunt(busses []bus, work, ret chan uint64) {
 		for id := start; id < id+batch; id += busses[0].id {
 			good := true
 			for _, b := range busses[1:] {
-				//fmt.Printf("   -> %+v : %d\n", b, (id+b.ofs)%b.id)
 				if (id+b.ofs)%b.id != 0 {
 					good = false
 					break

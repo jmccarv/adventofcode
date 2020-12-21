@@ -61,7 +61,7 @@ sub part2_redux {
         $g->add_edge($_, $n) for @prev;
         push @prev, $n;
     }
-    push @graphs, $g if $g->edges;
+    push @graphs, $g if $g->edges > 1;
 
     # Sanity check
     $_->expect_dag for @graphs;

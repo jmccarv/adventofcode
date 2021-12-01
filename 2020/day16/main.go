@@ -25,9 +25,10 @@ type input struct {
 
 func main() {
 	data := parse(os.Stdin)
-	fmt.Printf("%+v\n", data)
+	//fmt.Printf("%+v\n", data)
 
 	fmt.Println("part1: ", data.part1())
+	fmt.Println("part2: ", data.part2())
 }
 
 func parse(r io.Reader) input {
@@ -55,11 +56,29 @@ func (d *input) part1() int {
 
 	return ret
 }
+func (d *input) part2() int {
+	var ret int
+	var goodTickets []ticket
+
+tck:
+	for _, t := range d.tickets {
+		for _, num := range t {
+			if d.findNote(num).valid == nil {
+				continue tck
+			}
+		}
+
+		goodTickets = append(goodTickets, t)
+	}
+	d.tickets = goodTickets
+
+	return ret
+}
 
 func (d *input) findNote(num int) note {
 	for _, note := range d.notes {
 		if _, ok := note.valid[num]; ok {
-			fmt.Println("Found note for", num)
+			//fmt.Println("Found note for", num)
 			return note
 		}
 	}

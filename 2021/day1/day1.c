@@ -52,12 +52,10 @@ void part2(list_t input) {
     for (int i = 4; i < input.len; i++) {
         nr += s2 > s1;
 
-        s1 -= p1;
-        s1 += input.lines[i-1];
+        s1 += input.lines[i-1] - p1;
         p1 = p2;
 
-        s2 -= p2;
-        s2 += input.lines[i];
+        s2 += input.lines[i] - p2;
         p2 = input.lines[i-2];
     }
     nr += s2 > s1;

@@ -19,8 +19,8 @@ void part1(list_t input) {
 
 void part2(list_t input) {
     int s1 = 0, s2 = 0, nr = 0;
-    int p1 = input.lines[0];
-    int p2 = input.lines[1];
+
+    if (input.len < 4) return;
 
     for (int i = 0; i < 3; i++) {
         s1 += input.lines[i];
@@ -28,12 +28,8 @@ void part2(list_t input) {
     }
     for (int i = 4; i < input.len; i++) {
         nr += s2 > s1;
-
-        s1 += input.lines[i-1] - p1;
-        p1 = p2;
-
-        s2 += input.lines[i] - p2;
-        p2 = input.lines[i-2];
+        s1 += input.lines[i-1] - input.lines[i-4];
+        s2 += input.lines[i]   - input.lines[i-3];
     }
     nr += s2 > s1;
 

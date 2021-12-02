@@ -9,6 +9,7 @@ typedef struct {
 
 void part1(list_t input) {
     int last = 0, nr = -1;
+
     for (int i = 0; i < input.len; i++) {
         nr  += input.lines[i] > last;
         last = input.lines[i];
@@ -42,15 +43,14 @@ void part2(list_t input) {
 void main() {
     int i;
     list_t input = { 0, 0, NULL };
+
     while(EOF != scanf("%d\n", &i)) {
         if (input.cap <= input.len) {
             input.cap += 100;
             input.lines = realloc(input.lines, sizeof(int) * input.cap);
         }
-        input.lines[input.len] = i;
-        input.len++;
+        input.lines[input.len++] = i;
     }
-
     part1(input);
     part2(input);
 }

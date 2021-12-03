@@ -41,7 +41,8 @@ func main() {
 
 func calcCommon(input []data) common {
 	var c common
-	mc := make([]int, len(input[0].str))
+	nrBits := len(input[0].str)
+	mc := make([]int, nrBits)
 
 	for _, d := range input {
 		bp := len(d.str)
@@ -55,17 +56,14 @@ func calcCommon(input []data) common {
 		}
 	}
 
-	var mask uint64
 	for _, i := range mc {
-		mask <<= 1
-		mask |= 1
-
 		c.most <<= 1
 		if i >= 0 {
 			c.most |= 1
 		}
 	}
-	c.least = ^c.most & mask
+
+	c.least = ^c.most & (1<<nrBits - 1)
 	return c
 }
 
@@ -76,7 +74,7 @@ func part1(input []data) {
 
 func part2(input []data) {
 	sieve := func(filter func(c common) uint64) uint64 {
-		var mask uint64 = 1 << (len(input[0].str) - 1)
+		mask := uint64(1) << (len(input[0].str) - 1)
 		var nums []data
 		for _, x := range input {
 			nums = append(nums, x)
@@ -87,8 +85,7 @@ func part2(input []data) {
 			c := calcCommon(nums)
 
 			for _, d := range nums {
-				want := filter(c) & mask
-				if d.bits&mask == want {
+				if d.bits&mask == filter(c)&mask {
 					newNums = append(newNums, d)
 				}
 			}

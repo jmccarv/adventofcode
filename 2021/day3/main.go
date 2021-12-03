@@ -48,11 +48,11 @@ func calcCommon(input []data) common {
 		bp := len(d.str)
 		for i := 0; i < len(d.str); i++ {
 			bp--
-			Δ := 1
 			if d.bits&(1<<bp) == 0 {
-				Δ = -1
+				mc[i] -= 1
+			} else {
+				mc[i] += 1
 			}
-			mc[i] += Δ
 		}
 	}
 

@@ -72,24 +72,28 @@ func part1(input []data) {
 	fmt.Println(c.most * c.least)
 }
 
+func remove(x []data, ofs int) []data {
+	if ofs >= len(x) {
+		return x
+	}
+	x[ofs] = x[len(x)-1]
+	return x[:len(x)-1]
+}
+
 func part2(input []data) {
 	sieve := func(filter func(c common) uint64) uint64 {
-		mask := uint64(1) << (len(input[0].str) - 1)
-		var nums []data
-		for _, x := range input {
-			nums = append(nums, x)
-		}
+		nums := append([]data{}, input...)
 
-		for mask > 0 {
-			var newNums []data
+		for mask := uint64(1) << (len(input[0].str) - 1); mask > 0; {
 			c := calcCommon(nums)
 
-			for _, d := range nums {
-				if d.bits&mask == filter(c)&mask {
-					newNums = append(newNums, d)
+			for i := 0; i < len(nums); {
+				if nums[i].bits&mask != filter(c)&mask {
+					nums = remove(nums, i)
+					continue
 				}
+				i++
 			}
-			nums = newNums
 			if len(nums) == 1 {
 				return nums[0].bits
 			}

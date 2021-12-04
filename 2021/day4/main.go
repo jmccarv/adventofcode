@@ -79,41 +79,29 @@ func main() {
 		players = append(players, p)
 	}
 
-	part1(draws, players)
-	part2(draws, players)
+	solve(draws, players)
 }
 
-// Find the first winning board
-func part1(draws []int, players []*player) {
-out:
-	for _, nr := range draws {
-		for _, p := range players {
-			if p.checkDraw(nr) {
-				// found a winner
-				fmt.Println(p)
-				break out
-			}
-		}
-	}
-}
-
-// Find the last winning board
-func part2(draws []int, players []*player) {
-	var winner *player
+func solve(draws []int, players []*player) {
+	var first, last *player
 
 	for _, nr := range draws {
 		for _, p := range players {
+			// ignore any past winners
 			if !p.isWinner() {
 				if p.checkDraw(nr) {
-					// found a winner
-					winner = p
+					if first == nil {
+						first = p
+					}
+					last = p
 				}
 			}
 		}
 	}
 
-	if winner != nil {
-		fmt.Println(winner)
+	if first != nil {
+		fmt.Println(first)
+		fmt.Println(last)
 	}
 }
 

@@ -80,8 +80,10 @@ func main() {
 	}
 
 	part1(draws, players)
+	part2(draws, players)
 }
 
+// Find the first winning board
 func part1(draws []int, players []*player) {
 out:
 	for _, nr := range draws {
@@ -92,6 +94,26 @@ out:
 				break out
 			}
 		}
+	}
+}
+
+// Find the last winning board
+func part2(draws []int, players []*player) {
+	var winner *player
+
+	for _, nr := range draws {
+		for _, p := range players {
+			if !p.isWinner() {
+				if p.checkDraw(nr) {
+					// found a winner
+					winner = p
+				}
+			}
+		}
+	}
+
+	if winner != nil {
+		fmt.Println(winner)
 	}
 }
 
@@ -114,6 +136,13 @@ func (p *player) checkDraw(nr int) bool {
 		}
 	}
 	return false
+}
+
+func (p *player) isWinner() bool {
+	if p.winningCell == nil {
+		return false
+	}
+	return true
 }
 
 func (p *player) checkRow(r int) bool {
@@ -162,7 +191,7 @@ func (p *player) String() string {
 		return s
 	}
 
-	if p.winningCell != nil {
+	if p.isWinner() {
 		s = "Winning: " + p.winningCell.String() + "\n"
 		s += fmt.Sprintf("Score: %v\n", p.score())
 	}
@@ -179,6 +208,10 @@ func (p *player) String() string {
 
 func (p *player) score() int {
 	s := 0
+
+	if !p.isWinner() {
+		return 0
+	}
 
 	for r, _ := range p.board {
 		for c, _ := range p.board[r] {

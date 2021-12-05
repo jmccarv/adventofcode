@@ -41,7 +41,6 @@ func main() {
 	field := newVentField(maxX, maxY)
 
 	part1(field, lines)
-	field.reset()
 	part2(field, lines)
 }
 
@@ -57,6 +56,7 @@ func part1(field ventField, lines []line) {
 }
 
 func part2(field ventField, lines []line) {
+	field.reset()
 	for _, l := range lines {
 		field.drawLine(l)
 	}

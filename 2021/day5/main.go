@@ -110,7 +110,6 @@ func pointFromStr(xyStr string) point {
 	if err != nil {
 		panic("Invalid niput")
 	}
-
 	return p
 }
 
@@ -155,7 +154,6 @@ func (f ventField) overlapping() []point {
 			}
 		}
 	}
-
 	return ret
 }
 

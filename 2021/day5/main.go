@@ -19,10 +19,10 @@ type line struct {
 type ventField [][]int
 
 func main() {
-	s := bufio.NewScanner(os.Stdin)
 	var maxX, maxY int
 	var lines []line
 
+	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
 		coords := strings.Split(s.Text(), " -> ")
 		if len(coords) != 2 {

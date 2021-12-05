@@ -171,15 +171,9 @@ func (l line) String() string {
 }
 
 func (l line) horizontal() bool {
-	if l.p1.y == l.p2.y {
-		return true
-	}
-	return false
+	return l.p1.y == l.p2.y
 }
 
 func (l line) vertical() bool {
-	if l.p1.x == l.p2.x {
-		return true
-	}
-	return false
+	return l.p1.x == l.p2.x
 }

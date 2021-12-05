@@ -14,9 +14,8 @@ type point struct {
 }
 
 type line struct {
-	p1    point
-	p2    point
-	slope float64
+	p1 point
+	p2 point
 }
 
 type ventField [][]int
@@ -88,7 +87,6 @@ func newVentField(mx, my int) ventField {
 
 func lineFromStr(x, y string) line {
 	l := line{p1: pointFromStr(x), p2: pointFromStr(y)}
-	l.slope = (float64(l.p2.y) - float64(l.p1.y)) / (float64(l.p2.x) - float64(l.p1.x))
 	return l
 }
 
@@ -173,7 +171,7 @@ func (l line) max() point {
 }
 
 func (l line) String() string {
-	return fmt.Sprintf("%d,%d -> %d,%d m=%v", l.p1.x, l.p1.y, l.p2.x, l.p2.y, l.slope)
+	return fmt.Sprintf("%d,%d -> %d,%d m=%v", l.p1.x, l.p1.y, l.p2.x, l.p2.y)
 }
 
 func (l line) horizontal() bool {

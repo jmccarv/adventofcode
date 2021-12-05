@@ -46,11 +46,9 @@ func main() {
 
 func part1(field ventField, lines []line) {
 	for _, l := range lines {
-		if !(l.horizontal() || l.vertical()) {
-			// Only interested in horizontal or vertical lines
-			continue
+		if l.horizontal() || l.vertical() {
+			field.drawLine(l)
 		}
-		field.drawLine(l)
 	}
 	fmt.Println(len(field.overlapping()))
 }

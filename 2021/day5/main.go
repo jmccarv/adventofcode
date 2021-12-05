@@ -41,8 +41,9 @@ func main() {
 
 	field := newVentField(maxX, maxY)
 
-	fmt.Println(maxX, maxY)
 	part1(field, lines)
+	field.reset()
+	part2(field, lines)
 }
 
 func part1(field ventField, lines []line) {
@@ -51,6 +52,13 @@ func part1(field ventField, lines []line) {
 			// Only interested in horizontal or vertical lines
 			continue
 		}
+		field.drawLine(l)
+	}
+	fmt.Println(len(field.overlapping()))
+}
+
+func part2(field ventField, lines []line) {
+	for _, l := range lines {
 		field.drawLine(l)
 	}
 	fmt.Println(len(field.overlapping()))
@@ -122,46 +130,14 @@ func (f ventField) String() string {
 }
 
 func (f ventField) drawLine(l line) {
-	var move func(p point) point
-
-	/*
-		dx := min(1, max(-1, l.p2.x-l.p1.x))
-		dy := min(1, max(-1, l.p2.y-l.p1.y))
-
-		move = func(p point) point {
-			p.x += dx
-			p.y += dy
-			return p
-		}
-	*/
-
-	if l.horizontal() {
-		dir := 1
-		if l.p1.x > l.p2.x {
-			dir = -1
-		}
-		move = func(p point) point {
-			p.x += dir
-			return p
-		}
-	} else if l.vertical() {
-		dir := 1
-		if l.p1.y > l.p2.y {
-			dir = -1
-		}
-		move = func(p point) point {
-			p.y += dir
-			return p
-		}
-	} else {
-
-	}
+	dx := min(1, max(-1, l.p2.x-l.p1.x))
+	dy := min(1, max(-1, l.p2.y-l.p1.y))
 
 	p := l.p1
-	//fmt.Println("Drawing:", l)
 	for p != l.p2 {
 		f[p.y][p.x]++
-		p = move(p)
+		p.x += dx
+		p.y += dy
 	}
 	f[p.y][p.x]++
 
@@ -181,6 +157,14 @@ func (f ventField) overlapping() []point {
 	}
 
 	return ret
+}
+
+func (f ventField) reset() {
+	for y, r := range f {
+		for x := range r {
+			f[y][x] = 0
+		}
+	}
 }
 
 func (l line) max() point {

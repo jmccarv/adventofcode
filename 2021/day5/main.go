@@ -9,13 +9,11 @@ import (
 )
 
 type point struct {
-	x int
-	y int
+	x, y int
 }
 
 type line struct {
-	p1 point
-	p2 point
+	p1, p2 point
 }
 
 type ventField [][]int

@@ -32,7 +32,7 @@ func simulate(fish [10]int, days int) {
 		// All fish at timer 0 will spawn a new fish with its timer=9 (will be corrected to 8 next)
 		fish[9] = fish[0]
 
-		// Now decrement all fish's counters by 1
+		// Now decrement all fish's timers by 1
 		for i := 0; i < 9; i++ {
 			fish[i] = fish[i+1]
 		}

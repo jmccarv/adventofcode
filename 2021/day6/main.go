@@ -8,42 +8,38 @@ import (
 	"strings"
 )
 
-type fish []int
-
 func main() {
 	s := bufio.NewScanner(os.Stdin)
 	if !s.Scan() {
 		panic("Invalid input")
 	}
 
-	var school fish
+	var fish [9]int
 	for _, n := range strings.Split(s.Text(), ",") {
 		i, err := strconv.Atoi(n)
 		if err != nil {
 			panic("Invalid input")
 		}
-		school = append(school, i)
+		fish[i]++
 	}
-	//fmt.Println(f)
-
-	part1(school)
+	simulate(fish, 18)  // example
+	simulate(fish, 80)  // part 1
+	simulate(fish, 256) // part 2
 }
 
-func part1(school fish) {
-	days := 80
-
+func simulate(fish [9]int, days int) {
 	for ; days > 0; days-- {
-		var spawn fish
-		for i, f := range school {
-			switch f {
-			case 0:
-				school[i] = 6
-				spawn = append(spawn, 8)
-			default:
-				school[i]--
-			}
+		spawn := fish[0]
+		for i := 0; i < 8; i++ {
+			fish[i] = fish[i+1]
 		}
-		school = append(school, spawn...)
+		fish[6] += spawn
+		fish[8] = spawn
 	}
-	fmt.Println(len(school))
+
+	nr := 0
+	for _, count := range fish {
+		nr += count
+	}
+	fmt.Println(nr)
 }

@@ -14,7 +14,7 @@ func main() {
 		panic("Invalid input")
 	}
 
-	var fish [10]int
+	var fish [10]int // each element is the count of fish at that timer value
 	for _, n := range strings.Split(s.Text(), ",") {
 		i, err := strconv.Atoi(n)
 		if err != nil {
@@ -29,10 +29,15 @@ func main() {
 
 func simulate(fish [10]int, days int) {
 	for ; days > 0; days-- {
+		// All fish at timer 0 will spawn a new fish with its timer = 8
 		fish[9] = fish[0]
+
+		// Now decrement all existing fish's counters by 1 (ignore newly spawned fish)
 		for i := 0; i < 9; i++ {
 			fish[i] = fish[i+1]
 		}
+
+		// Finally, all fish that were at timer=0 reset to timer=6
 		fish[6] += fish[8]
 	}
 

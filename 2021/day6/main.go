@@ -14,7 +14,7 @@ func main() {
 		panic("Invalid input")
 	}
 
-	var fish [9]int
+	var fish [10]int
 	for _, n := range strings.Split(s.Text(), ",") {
 		i, err := strconv.Atoi(n)
 		if err != nil {
@@ -27,19 +27,18 @@ func main() {
 	simulate(fish, 256) // part 2
 }
 
-func simulate(fish [9]int, days int) {
+func simulate(fish [10]int, days int) {
 	for ; days > 0; days-- {
-		spawn := fish[0]
-		for i := 0; i < 8; i++ {
+		fish[9] = fish[0]
+		for i := 0; i < 9; i++ {
 			fish[i] = fish[i+1]
 		}
-		fish[6] += spawn
-		fish[8] = spawn
+		fish[6] += fish[8]
 	}
 
 	nr := 0
-	for _, count := range fish {
-		nr += count
+	for i := 0; i < 9; i++ {
+		nr += fish[i]
 	}
 	fmt.Println(nr)
 }

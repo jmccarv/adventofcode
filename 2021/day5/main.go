@@ -107,19 +107,18 @@ func pointFromStr(xyStr string) point {
 	return p
 }
 
-func (f ventField) String() string {
-	s := ""
+func (f ventField) display() {
 	for _, r := range f {
 		for _, c := range r {
 			if c > 0 {
-				s += fmt.Sprintf("%d", c)
+				fmt.Print(c)
 			} else {
-				s += "."
+				fmt.Print(".")
 			}
 		}
-		s += "\n"
+		fmt.Println()
 	}
-	return s
+	fmt.Println()
 }
 
 func (f ventField) drawLine(l line) {
@@ -135,7 +134,7 @@ func (f ventField) drawLine(l line) {
 	f[p.y][p.x]++
 
 	// don't want to do this for the real input, way too big!
-	//fmt.Println(f)
+	//f.display()
 }
 
 func (f ventField) overlapping() []point {

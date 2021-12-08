@@ -71,6 +71,7 @@ func (from location) migrateTo(to location) []bucket {
 }
 
 func calcFuelCost(n int) int {
+	// 1 + 2 + .. + n-2 + n-1 + n
 	return (n * (n + 1)) / 2
 }
 

@@ -9,19 +9,6 @@ use Data::Dumper qw(Dumper);
 use List::Util qw(uniq);
 use Array::Set qw(set_diff);
 
-my %segments = (
-    0 => 'abcefg',
-    1 => 'cf',
-    2 => 'acdeg',
-    3 => 'acdfg',
-    4 => 'bcdf',
-    5 => 'abdfg',
-    6 => 'abdefg',
-    7 => 'acf',
-    8 => 'abcdefg',
-    9 => 'abcdfg',
-);
-
 # length => digit
 my %known = (
     2 => 1,

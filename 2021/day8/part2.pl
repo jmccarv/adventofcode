@@ -12,83 +12,64 @@ my %known = (2=>1, 4=>4, 3=>7, 7=>8);
 my $ret;
 while (<>) {
     chomp;
-    my ($patterns, $digits) = split /\|/;
-    $ret += process([ split /\s/, $patterns ], [ grep { length($_) } split /\s/, $digits ]);
+    my ($segments, $digits) = split /\|/;
+    $ret += process([ split /\s/, $segments ], [ grep { length($_) } split /\s/, $digits ]);
 }
 print "$ret\n";
 
+sub unknown { grep { !defined $_->{value} } @_ }
 sub process {
-    my ($patterns, $digits) = @_;
-    my %k;
+    my ($segments, $digits) = @_;
+    my (%k, $num);
 
     # Turn them into objects! yay!
-    my @p = map { pattern($_) } @$patterns;
+    my @p = map { segment($_) } @$segments;
 
     # Let's start by finding our known digits, these are the ones that
     # use a unique number of segments in the 7 segment display: 1, 4, 7, and 8
-    # This will be a map of { digit => pattern_object } i.e. { 7 => $obj }
+    # This will be a map of { num => segment_object } i.e. { 7 => $obj }
     %k = map { $_->value => $_ } grep { $_->value } @p;
 
-    # Now filter out those that remain to be decoded
-    my @left = grep { !defined($_->value) } @p;
+    # We can figure out which segment is 6: it has 6 segments and we can subtract
+    # our known 7's segments from the possible 6s to find the one that must be 6
+    # 7 - 6 => 4 segments
+    $k{6} = (grep { $_->minus($k{7}) == 4 } grep { $_->len == 6 } unknown(@p))[0]->setval(6);
 
-    # We can figure out which pattern is 6: it has 6 letters in its pattern
-    # and and one of 'c' or 'f'. So we can subtract our known 7 pattern
-    # from the possible 6's to find the one that must be 6
-    $k{6} = (grep { $_->minus($k{7}) == 4 }
-             grep { $_->len == 6 } @left)[0];
-    @left = grep { !$_->equal($k{6}) } @left;
-
-    # From 6 we can find 5, 5 has all the same segments as 6, minus one
-    $k{5} = (grep { $k{6}->minus($_) == 1 } 
-             grep { $_->len == 5 } @left)[0];
-    @left = grep { !$_->equal($k{5}) } @left;
+    # From 6 we can find 5, 5 has all the same segments as 6, minus one, so 6 - 5 => 1 segment
+    $k{5} = (grep { $k{6}->minus($_) == 1 } grep { $_->len == 5 } unknown(@p))[0]->setval(5);
    
-    # 3 - 5 yields 1
-    $k{3} = (grep { $_->minus($k{5}) == 1 }
-             grep { $_->len == 5 } @left)[0];
-    @left = grep { !$_->equal($k{3}) } @left;
+    # 3: 3 - 5 => 1
+    $k{3} = (grep { $_->minus($k{5}) == 1 } grep { $_->len == 5 } unknown(@p))[0]->setval(3);
 
-    # 2 - 5 = 2
-    $k{2} = (grep { $_->minus($k{5}) == 2 }
-             grep { $_->len == 5 } @left)[0];
-    @left = grep { !$_->equal($k{2}) } @left;
+    # 2: 2 - 5 => 2
+    $k{2} = (grep { $_->minus($k{5}) == 2 } grep { $_->len == 5 } unknown(@p))[0]->setval(2);
 
-    # Only 0 and 9 left now.
-    # 5 - 9 = 0, 5 - 0 = 1
-    $k{9} = (grep { $k{5}->minus($_) == 0 }
-             grep { $_->len == 6 } @left)[0];
-    @left = grep { !$_->equal($k{9}) } @left;
+    # 9: 5 - 9 => 0
+    $k{9} = (grep { $k{5}->minus($_) == 0 } grep { $_->len == 6 } unknown(@p))[0]->setval(9);
 
-    $k{0} = shift @left;
-
-    # Fixup values
-    $k{$_}->{value} = $_ for keys %k;
+    # The last unknown is 0
+    (unknown(@p))[0]->setval(0);
 
     # Now we can decode the digits
-    my $num;
     for my $d (@$digits) {
-        my $x = (grep { $_->matches($d) } values %k)[0];
-        $num .= $x->value;
+        $num .= (grep { $_->equal($d) } @p)[0]->value;
     }
     $num;
 }
 
-sub pattern {
+sub segment {
     my @letters = sort split //, shift;
-    my $pattern = join('', @letters);
+    my $segment = join('', @letters);
     bless {
-        pattern => $pattern,
+        segment => $segment,
         letters => \@letters,
-        len     => length($pattern),
-        value   => $known{length($pattern)},
+        len     => length($segment),
+        value   => $known{length($segment)},
     };
 }
-
 sub letters  { @{shift->{letters}} }
 sub value    { shift->{value} }
 sub len      { shift->{len} }
 sub minus    { my @r = sort @{set_diff(shift->{letters}, shift->{letters})}; @r }
-sub contains { shift->{pattern} =~ /shift/ }
-sub equal    { shift->{pattern} eq shift->{pattern} }
-sub matches  { shift->{pattern} eq join('', sort split //, shift) }
+sub equal    { shift->{segment} eq join('', sort split //, shift) }
+sub setval   { my $self = shift; $self->{value} = shift; $self }

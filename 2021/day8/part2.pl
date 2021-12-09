@@ -80,8 +80,8 @@ sub pattern {
     bless {
         pattern => $pattern,
         letters => \@letters,
-        len => length($pattern),
-        value => $known{length($pattern)},
+        len     => length($pattern),
+        value   => $known{length($pattern)},
     };
 }
 

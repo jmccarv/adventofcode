@@ -103,12 +103,11 @@ func (g *game) riskLevel() int {
 // basin size is the number of locations in the basin, including the starting point
 func (g *game) basinAt(c coordinate) int {
 	//fmt.Println("Enter: ", c)
-	me := &g.m[c.r][c.c]
-	me.visited = true
+	g.at(c).visited = true
 	ret := 1
 
 	for _, n := range g.neighborsOf(c) {
-		if g.at(n).visited || g.at(n).value < me.value {
+		if g.at(n).visited || g.at(n).value < g.at(c).value {
 			continue
 		}
 		//fmt.Println("check: ", x)

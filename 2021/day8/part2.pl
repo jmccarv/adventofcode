@@ -98,19 +98,10 @@ sub pattern {
     };
 }
 
-sub letters { @{shift->{letters}} }
-sub value { shift->{value} }
-sub len { shift->{len} }
-sub minus { my @r = sort @{set_diff(shift->{letters}, shift->{letters})}; @r }
-sub contains {
-    my $self = shift;
-    my $letter = shift;
-    $self->{pattern} =~ /$letter/;
-}
-sub equal { shift->{pattern} eq shift->{pattern} }
-sub matches {
-    my $self = shift;
-    my $pattern = shift;
-    $pattern = join('', sort split //, $pattern);
-    $_->{pattern} eq $pattern;
-}
+sub letters  { @{shift->{letters}} }
+sub value    { shift->{value} }
+sub len      { shift->{len} }
+sub minus    { my @r = sort @{set_diff(shift->{letters}, shift->{letters})}; @r }
+sub contains { shift->{pattern} =~ /shift/ }
+sub equal    { shift->{pattern} eq shift->{pattern} }
+sub matches  { shift->{pattern} eq join('', sort split //, shift) }

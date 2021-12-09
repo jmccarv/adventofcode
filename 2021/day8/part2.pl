@@ -3,8 +3,6 @@
 use strict;
 use warnings;
 
-package main;
-
 use Data::Dumper qw(Dumper);
 use Array::Set qw(set_diff);
 

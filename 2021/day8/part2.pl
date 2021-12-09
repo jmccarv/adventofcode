@@ -6,16 +6,10 @@ use warnings;
 package main;
 
 use Data::Dumper qw(Dumper);
-use List::Util qw(uniq);
 use Array::Set qw(set_diff);
 
 # length => digit
-my %known = (
-    2 => 1,
-    4 => 4,
-    3 => 7,
-    7 => 8,
-);
+my %known = (2=>1, 4=>4, 3=>7, 7=>8);
 
 my $ret;
 while (<>) {
@@ -86,10 +80,8 @@ sub process {
 }
 
 sub pattern {
-    my $pattern = shift;
-
-    my @letters = sort split //, $pattern;
-    $pattern = join('', @letters);
+    my @letters = sort split //, shift;
+    my $pattern = join('', @letters);
     return bless {
         pattern => $pattern,
         letters => \@letters,

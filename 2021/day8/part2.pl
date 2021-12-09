@@ -76,7 +76,7 @@ sub process {
         my $x = (grep { $_->matches($d) } values %k)[0];
         $num .= $x->value;
     }
-    return $num;
+    $num;
 }
 
 sub pattern {

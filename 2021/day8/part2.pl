@@ -37,36 +37,33 @@ sub process {
     # from the possible 6's to find the one that must be 6
     $k{6} = (grep { $_->minus($k{7}) == 4 }
              grep { $_->len == 6 } @left)[0];
-    $k{6}->{value} = 6;
     @left = grep { !$_->equal($k{6}) } @left;
 
     # From 6 we can find 5, 5 has all the same segments as 6, minus one
     $k{5} = (grep { $k{6}->minus($_) == 1 } 
              grep { $_->len == 5 } @left)[0];
-    $k{5}->{value} = 5;
     @left = grep { !$_->equal($k{5}) } @left;
    
     # 3 - 5 yields 1
     $k{3} = (grep { $_->minus($k{5}) == 1 }
              grep { $_->len == 5 } @left)[0];
-    $k{3}->{value} = 3;
     @left = grep { !$_->equal($k{3}) } @left;
 
     # 2 - 5 = 2
     $k{2} = (grep { $_->minus($k{5}) == 2 }
              grep { $_->len == 5 } @left)[0];
-    $k{2}->{value} = 2;
     @left = grep { !$_->equal($k{2}) } @left;
 
     # Only 0 and 9 left now.
     # 5 - 9 = 0, 5 - 0 = 1
     $k{9} = (grep { $k{5}->minus($_) == 0 }
              grep { $_->len == 6 } @left)[0];
-    $k{9}->{value} = 9;
     @left = grep { !$_->equal($k{9}) } @left;
 
     $k{0} = shift @left;
-    $k{0}->{value} = 0;
+
+    # Fixup values
+    $k{$_}->{value} = $_ for keys %k;
 
     # Now we can decode the digits
     my $num;

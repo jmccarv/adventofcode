@@ -82,7 +82,7 @@ sub process {
 sub pattern {
     my @letters = sort split //, shift;
     my $pattern = join('', @letters);
-    return bless {
+    bless {
         pattern => $pattern,
         letters => \@letters,
         len => length($pattern),

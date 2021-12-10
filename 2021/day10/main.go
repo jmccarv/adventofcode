@@ -86,12 +86,7 @@ func (s *tokenStack) pop() byte {
 	if l > 0 {
 		ret = (*s)[l-1]
 	}
-
-	if l < 2 {
-		*s = []byte{}
-	} else {
-		*s = (*s)[:l-1]
-	}
+	*s = (*s)[:l-1]
 
 	//fmt.Printf(" pop -> %s\n", s)
 	return ret

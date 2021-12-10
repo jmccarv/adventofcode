@@ -83,11 +83,11 @@ func (s *tokenStack) pop() byte {
 	var ret byte
 	l := len(*s)
 
-	if len(*s) > 0 {
+	if l > 0 {
 		ret = (*s)[l-1]
 	}
 
-	if len(*s) < 2 {
+	if l < 2 {
 		*s = []byte{}
 	} else {
 		*s = (*s)[:l-1]

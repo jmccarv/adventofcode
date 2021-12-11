@@ -7,26 +7,9 @@ import (
 	"sort"
 )
 
-var closerFor = map[byte]byte{
-	'[': ']',
-	'(': ')',
-	'{': '}',
-	'<': '>',
-}
-
-var p1Points = map[byte]int{
-	')': 3,
-	']': 57,
-	'}': 1197,
-	'>': 25137,
-}
-
-var p2Points = map[byte]int{
-	')': 1,
-	']': 2,
-	'}': 3,
-	'>': 4,
-}
+var closerFor = map[byte]byte{'[': ']', '(': ')', '{': '}', '<': '>'}
+var p1Points = map[byte]int{')': 3, ']': 57, '}': 1197, '>': 25137}
+var p2Points = map[byte]int{')': 1, ']': 2, '}': 3, '>': 4}
 
 type tokenStack []byte
 
@@ -43,7 +26,6 @@ func main() {
 			if c, ok := closerFor[tok]; ok {
 				nextClose.push(c)
 			} else if tok != nextClose.pop() {
-				//fmt.Printf("Invalid closing token: %c => %d\n", tok, points[tok])
 				p1 += p1Points[tok]
 				good = false
 				break
@@ -55,7 +37,6 @@ func main() {
 	}
 	fmt.Println("p1", p1)
 
-	// part 2
 	var scores []int
 	for _, i := range incomplete {
 		score := 0
@@ -76,11 +57,9 @@ func (s tokenStack) clone() tokenStack {
 
 func (s *tokenStack) push(tok byte) {
 	*s = append(*s, tok)
-	//fmt.Printf("push -> %s\n", s)
 }
 
-func (s *tokenStack) pop() byte {
-	var ret byte
+func (s *tokenStack) pop() (ret byte) {
 	l := len(*s)
 
 	if l > 0 {
@@ -88,10 +67,5 @@ func (s *tokenStack) pop() byte {
 	}
 	*s = (*s)[:l-1]
 
-	//fmt.Printf(" pop -> %s\n", s)
-	return ret
-}
-
-func (s *tokenStack) String() string {
-	return string(*s)
+	return
 }

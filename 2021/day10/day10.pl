@@ -24,6 +24,5 @@ while (<>) {
 print "$p1\n";
 
 my @scores = sort {$a <=> $b} 
-             map{ my $score=0; map { $score = $score*5 + $p2_points{$_} } 
-             reverse @$_; $score } @incomplete;
+             map{ my $score=0; map { $score = $score*5 + $p2_points{$_} } reverse @$_; $score } @incomplete;
 print $scores[@scores/2]."\n";

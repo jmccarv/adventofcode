@@ -26,13 +26,21 @@ func main() {
 	}
 
 	p1 := 0
-	for i := 0; i < 100; i++ {
-		p1 += grid.step()
+	p2 := 0
+	for i := 0; p2 == 0; i++ {
+		nr, all := grid.step()
+		if i < 100 {
+			p1 += nr
+		}
+		if all {
+			p2 = i + 1
+		}
 	}
 	fmt.Println(p1)
+	fmt.Println(p2)
 }
 
-func (g *gameGrid) step() (flashed int) {
+func (g *gameGrid) step() (int, bool) {
 	for r := 0; r < 10; r++ {
 		for c := 0; c < 10; c++ {
 			g[r][c].energy++
@@ -42,6 +50,7 @@ func (g *gameGrid) step() (flashed int) {
 		}
 	}
 
+	flashed := 0
 	for r := 0; r < 10; r++ {
 		for c := 0; c < 10; c++ {
 			if g[r][c].flashed {
@@ -52,7 +61,7 @@ func (g *gameGrid) step() (flashed int) {
 		}
 	}
 
-	return
+	return flashed, flashed == 100
 }
 
 func (g *gameGrid) flash(r, c int) {

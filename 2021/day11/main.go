@@ -25,8 +25,7 @@ func main() {
 		r++
 	}
 
-	p1 := 0
-	p2 := 0
+	var p1, p2 int
 	for i := 0; p2 == 0; i++ {
 		nr, all := grid.step()
 		if i < 100 {

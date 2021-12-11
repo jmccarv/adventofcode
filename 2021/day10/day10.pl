@@ -9,9 +9,7 @@ my %p2_points  = qw# ) 1 ] 2 } 3 > 4 #;
 
 my (@stack, @incomplete, $p1, $good, $p2);
 while (<>) {
-    chomp;
-    $good = 1;
-    my @stack = ();
+    chomp; $good = 1; my @stack = ();
     for my $tok (split //) {
         if (my $c = $closer_for{$tok}) {
             push @stack, $c;

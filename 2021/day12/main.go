@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-type path []*node
-
 type node struct {
 	name        string
 	isSmallCave bool
@@ -17,6 +15,11 @@ type node struct {
 type graph struct {
 	nodes map[string]*node
 	edges map[node][]*node
+}
+
+type path struct {
+	nodes []*node
+	twice bool
 }
 
 func main() {
@@ -30,24 +33,42 @@ func main() {
 		}
 		g.addEdge(x[0], x[1])
 	}
-	fmt.Println(g)
-	part1(g)
+	//fmt.Println(g)
+	solve(g, okPart1)
+	solve(g, okPart2)
 }
 
-func part1(g graph) {
-	var descend func(*node, path)
+func okPart1(n *node, p *path) bool {
+	return !p.hasNode(*n)
+}
 
-	var found []path
+func okPart2(n *node, p *path) bool {
+	if !p.hasNode(*n) {
+		return true
+	}
 
-	descend = func(from *node, p path) {
-		if from.isSmallCave && p.hasNode(*from) {
+	if !p.twice && n.name != "start" {
+		p.twice = true
+		return true
+	}
+
+	return false
+}
+
+func solve(g graph, okToVisit func(*node, *path) bool) {
+	var descend func(*node, *path)
+	found := 0
+
+	descend = func(from *node, p *path) {
+		if from.isSmallCave && !okToVisit(from, p) {
 			return
 		}
 
-		p = append(p, from)
+		p.add(from)
+		//fmt.Printf("%s\n", p)
 
 		if from.name == "end" {
-			found = append(found, p)
+			found++
 			return
 		}
 
@@ -56,16 +77,21 @@ func part1(g graph) {
 		}
 	}
 
-	descend(g.nodes["start"], path{})
+	descend(g.nodes["start"], &path{})
 
-	for _, p := range found {
-		fmt.Println(p)
-	}
-	fmt.Println(len(found))
+	fmt.Println(found)
 }
 
-func (p path) hasNode(n node) bool {
-	for _, x := range p {
+func (p *path) nrNodes() int {
+	return len(p.nodes)
+}
+
+func (p *path) add(n *node) {
+	p.nodes = append(p.nodes, n)
+}
+
+func (p *path) hasNode(n node) bool {
+	for _, x := range p.nodes {
 		if x.name == n.name {
 			return true
 		}
@@ -73,15 +99,16 @@ func (p path) hasNode(n node) bool {
 	return false
 }
 
-func (p path) copy() path {
-	x := make([]*node, len(p))
-	copy(x, p)
-	return x
+func (p *path) copy() *path {
+	x := path{twice: p.twice}
+	x.nodes = make([]*node, len(p.nodes))
+	copy(x.nodes, p.nodes)
+	return &x
 }
 
 func (p path) String() string {
 	ret := ""
-	for _, n := range p {
+	for _, n := range p.nodes {
 		ret += "," + n.name
 	}
 	if len(ret) > 0 {

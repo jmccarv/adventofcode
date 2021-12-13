@@ -1,5 +1,9 @@
 package main
 
+// This version uses a map to track just the points that are in use instead
+// of the slice version that kept a giant 2D slice of all points. This one
+// performs less processing and runs faster than the slice version.
+
 import (
 	"bufio"
 	"fmt"

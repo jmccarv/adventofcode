@@ -83,7 +83,6 @@ func (p page) count() (nr int) {
 func (p *page) fold(f fold) {
 	var calc func(t point) (point, bool)
 
-	fmt.Println(p.limit)
 	switch f.axis {
 	case 'x':
 		calc = func(t point) (point, bool) {
@@ -104,12 +103,10 @@ func (p *page) fold(f fold) {
 		}
 		p.limit.y = f.where - 1
 	}
-	fmt.Println(p.limit)
 
 	for t := range p.points {
 		if n, ok := calc(t); ok {
 			p.points[n] = struct{}{}
-			fmt.Println("delete", t)
 			delete(p.points, t)
 		}
 	}

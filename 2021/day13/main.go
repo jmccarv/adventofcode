@@ -20,7 +20,6 @@ type fold struct {
 type page [][]bool
 
 func main() {
-	//var p page
 	var m point
 	var points []point
 	var folds []fold
@@ -56,7 +55,6 @@ func max(a, b int) int {
 }
 
 func solve(p page, folds []fold) {
-	//fmt.Println(p)
 	p.fold(folds[0])
 	fmt.Println("Part1", p.count())
 
@@ -90,28 +88,17 @@ func (p page) count() (nr int) {
 	return
 }
 
-func (p page) String() (s string) {
-	for _, y := range p {
-		for _, set := range y {
-			if set {
-				s += "#"
-			} else {
-				s += " "
-			}
-		}
-		s += "\n"
+func (p *page) fold(f fold) {
+	switch f.axis {
+	case 'x':
+		p.foldX(f.where)
+	case 'y':
+		p.foldY(f.where)
 	}
-
-	if len(s) > 0 {
-		s = s[:len(s)]
-	}
-
-	return
 }
 
 func (pp *page) foldX(w int) {
 	p := *pp
-
 	for y := 0; y < len(p); y++ {
 		for x := w + 1; x < len(p[y]); x++ {
 			if p[y][x] {
@@ -134,11 +121,21 @@ func (pp *page) foldY(w int) {
 	*pp = p[0:w]
 }
 
-func (p *page) fold(f fold) {
-	switch f.axis {
-	case 'x':
-		p.foldX(f.where)
-	case 'y':
-		p.foldY(f.where)
+func (p page) String() (s string) {
+	for _, y := range p {
+		for _, set := range y {
+			if set {
+				s += "#"
+			} else {
+				s += " "
+			}
+		}
+		s += "\n"
 	}
+
+	if len(s) > 0 {
+		s = s[:len(s)]
+	}
+
+	return
 }

@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	//"strconv"
 	"strings"
 )
 
@@ -31,12 +30,13 @@ func main() {
 	for i := 0; i < 10; i++ {
 		p.step()
 	}
-	fmt.Println("Part1", p.score())
+	fmt.Println("Part1 (10 steps)", p.score())
 
 	for i := 0; i < 30; i++ {
 		p.step()
 	}
-	fmt.Println("Part2", p.score())
+	fmt.Println("Part2 (40 steps)", p.score())
+	//fmt.Println(p)
 }
 
 func max(a, b int) int {
@@ -90,7 +90,7 @@ func (p polymer) step() {
 			continue
 		}
 
-		if p.chain[k] < count+1 {
+		if p.chain[k] <= count {
 			delete(p.chain, k)
 		} else {
 			p.chain[k] -= count

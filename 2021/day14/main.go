@@ -27,25 +27,16 @@ func main() {
 			p.addRule(f[0], f[2])
 		}
 	}
+
 	for i := 0; i < 10; i++ {
 		p.step()
 	}
+	fmt.Println("Part1", p.score())
 
-	var lo, hi int
-	for _, x := range p.elem {
-		if lo == 0 || x < lo {
-			lo = x
-		}
-		hi = max(hi, x)
+	for i := 0; i < 30; i++ {
+		p.step()
 	}
-	fmt.Println("Part1", hi-lo)
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+	fmt.Println("Part2", p.score())
 }
 
 func max(a, b int) int {
@@ -61,6 +52,17 @@ func newPolymer() polymer {
 		make(map[string]string),
 		make(map[byte]int),
 	}
+}
+
+func (p polymer) score() int {
+	var lo, hi int
+	for _, x := range p.elem {
+		if lo == 0 || x < lo {
+			lo = x
+		}
+		hi = max(hi, x)
+	}
+	return hi - lo
 }
 
 func (p polymer) addChain(s string) {
@@ -83,24 +85,20 @@ func (p polymer) step() {
 
 	//fmt.Println("Step:", p)
 	for k, count := range n {
-		for i := 0; i < count; i++ {
-			ins, ok := p.rules[k]
-			if !ok {
-				continue
-			}
-
-			if p.chain[k] < 2 {
-				delete(p.chain, k)
-			} else {
-				p.chain[k]--
-			}
-
-			p.elem[ins[0]]++
-
-			p.chain[string(k[0])+ins]++
-			p.chain[ins+string(k[1])]++
-			//fmt.Printf("%s -> %s %s -> %s\n", k, string(k[0])+ins, ins+string(k[1]), p)
+		ins, ok := p.rules[k]
+		if !ok {
+			continue
 		}
+
+		if p.chain[k] < count+1 {
+			delete(p.chain, k)
+		} else {
+			p.chain[k] -= count
+		}
+		p.elem[ins[0]] += count
+
+		p.chain[string(k[0])+ins] += count
+		p.chain[ins+string(k[1])] += count
 	}
 }
 

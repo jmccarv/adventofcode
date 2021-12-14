@@ -8,8 +8,15 @@ import (
 )
 
 type polymer struct {
+	// Count of each element pair in the chain, where pairs overlap.
+	// ABBBC is four pairs: [AB:1 BB:2 BC:1]
 	pairs map[string]int
+
+	// Maps element pairs to an element to be inserted between the pair,
+	// creating two new elements. See puzzle instructions :)
 	rules map[string]string
+
+	// Tracks the count of each element in the resulting chain
 	elems map[byte]int
 }
 
@@ -85,20 +92,29 @@ func (p polymer) step() {
 
 	//fmt.Println("Step:", p)
 	for k, count := range n {
-		ins, ok := p.rules[k]
+		// we have count k pairs so we are doing this same
+		// operation count times.
+
+		ins, ok := p.rules[k] // should never fail with valid input
 		if !ok {
 			continue
 		}
+		// ins is the new element we're inserting between pair k,
+		// which will replace pair k with two new pairs instead
 
+		// replacing pair k with two new ones so update our count
 		if p.pairs[k] <= count {
 			delete(p.pairs, k)
 		} else {
 			p.pairs[k] -= count
 		}
 
-		p.elems[ins[0]] += count
+		// now add in the new pairs, we're adding count of them
 		p.pairs[string(k[0])+ins] += count
 		p.pairs[ins+string(k[1])] += count
+
+		// and finally we've added count new ins elements to the final chain; count them
+		p.elems[ins[0]] += count
 	}
 }
 

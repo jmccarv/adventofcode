@@ -8,7 +8,7 @@ import (
 )
 
 type polymer struct {
-	chain map[string]int
+	pairs map[string]int
 	rules map[string]string
 	elem  map[byte]int
 }
@@ -67,7 +67,7 @@ func (p polymer) score() int {
 
 func (p polymer) addChain(s string) {
 	for i := 1; i < len(s); i++ {
-		p.chain[s[i-1:i+1]]++
+		p.pairs[s[i-1:i+1]]++
 		p.elem[s[i]]++
 	}
 	p.elem[s[0]]++
@@ -79,7 +79,7 @@ func (p polymer) addRule(pair, insert string) {
 
 func (p polymer) step() {
 	n := make(map[string]int)
-	for k, v := range p.chain {
+	for k, v := range p.pairs {
 		n[k] = v
 	}
 
@@ -90,15 +90,15 @@ func (p polymer) step() {
 			continue
 		}
 
-		if p.chain[k] <= count {
-			delete(p.chain, k)
+		if p.pairs[k] <= count {
+			delete(p.pairs, k)
 		} else {
-			p.chain[k] -= count
+			p.pairs[k] -= count
 		}
 
 		p.elem[ins[0]] += count
-		p.chain[string(k[0])+ins] += count
-		p.chain[ins+string(k[1])] += count
+		p.pairs[string(k[0])+ins] += count
+		p.pairs[ins+string(k[1])] += count
 	}
 }
 
@@ -107,5 +107,5 @@ func (p polymer) String() string {
 	for _, i := range p.elem {
 		nr += i
 	}
-	return fmt.Sprintf("%v %v len=%d", p.chain, p.elem, nr)
+	return fmt.Sprintf("%v %v len=%d", p.pairs, p.elem, nr)
 }

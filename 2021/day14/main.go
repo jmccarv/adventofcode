@@ -95,8 +95,8 @@ func (p polymer) step() {
 		} else {
 			p.chain[k] -= count
 		}
-		p.elem[ins[0]] += count
 
+		p.elem[ins[0]] += count
 		p.chain[string(k[0])+ins] += count
 		p.chain[ins+string(k[1])] += count
 	}
@@ -107,6 +107,5 @@ func (p polymer) String() string {
 	for _, i := range p.elem {
 		nr += i
 	}
-
 	return fmt.Sprintf("%v %v len=%d", p.chain, p.elem, nr)
 }

@@ -38,7 +38,7 @@ func shortestPath(input [][]int) {
 				g.AddCost(nodeNr-1, nodeNr, int64(r[c]))
 				g.AddCost(nodeNr, nodeNr-1, int64(r[c-1]))
 			}
-			if len(pr) > 0 {
+			if above >= 0 {
 				g.AddCost(above, nodeNr, int64(r[c]))
 				g.AddCost(nodeNr, above, int64(pr[c]))
 			}

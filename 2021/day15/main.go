@@ -62,10 +62,7 @@ func part2(input [][]int) {
 	for r, _ := range input {
 		for dc := 1; dc < 5; dc++ {
 			for c := 0; c < size; c++ {
-				v := input[r][c+(dc-1)*size] + 1
-				if v > 9 {
-					v = 1
-				}
+				v := input[r][c+(dc-1)*size]%9 + 1
 				input[r] = append(input[r], v)
 			}
 		}
@@ -76,10 +73,7 @@ func part2(input [][]int) {
 		for r := 0; r < size; r++ {
 			var nr []int
 			for c, _ := range input[r] {
-				v := input[r+(dr-1)*size][c] + 1
-				if v > 9 {
-					v = 1
-				}
+				v := input[r+(dr-1)*size][c]%9 + 1
 				nr = append(nr, v)
 			}
 			input = append(input, nr)

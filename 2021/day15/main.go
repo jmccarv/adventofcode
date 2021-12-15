@@ -26,7 +26,6 @@ func main() {
 
 func shortestPath(input [][]int) {
 	g := graph.New(len(input) * len(input))
-	costs := make(map[int]int)
 	var pr []int
 	nodeNr := -1
 	for _, r := range input {
@@ -42,7 +41,6 @@ func shortestPath(input [][]int) {
 				g.AddCost(above, nodeNr, int64(r[c]))
 				g.AddCost(nodeNr, above, int64(pr[c]))
 			}
-			costs[nodeNr] = r[c]
 		}
 		pr = r
 	}

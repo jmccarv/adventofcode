@@ -27,25 +27,25 @@ func main() {
 func shortestPath(input [][]int) {
 	g := graph.New(len(input) * len(input))
 	var pr []int
-	nodeNr := -1
+	node := -1
 	for _, r := range input {
 		for c, _ := range r {
-			nodeNr++
-			above := nodeNr - len(r)
+			node++
+			above := node - len(r)
 
 			if c > 0 {
-				g.AddCost(nodeNr-1, nodeNr, int64(r[c]))
-				g.AddCost(nodeNr, nodeNr-1, int64(r[c-1]))
+				g.AddCost(node-1, node, int64(r[c]))
+				g.AddCost(node, node-1, int64(r[c-1]))
 			}
 			if above >= 0 {
-				g.AddCost(above, nodeNr, int64(r[c]))
-				g.AddCost(nodeNr, above, int64(pr[c]))
+				g.AddCost(above, node, int64(r[c]))
+				g.AddCost(node, above, int64(pr[c]))
 			}
 		}
 		pr = r
 	}
 
-	_, cost := graph.ShortestPath(g, 0, nodeNr)
+	_, cost := graph.ShortestPath(g, 0, node)
 	fmt.Println(cost)
 }
 

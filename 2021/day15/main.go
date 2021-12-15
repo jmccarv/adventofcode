@@ -59,6 +59,8 @@ func part1(input [][]int) {
 
 func part2(input [][]int) {
 	size := len(input)
+
+	// Extend to the right 5x
 	for r, _ := range input {
 		for dc := 1; dc < 5; dc++ {
 			for c := 0; c < size; c++ {
@@ -71,6 +73,7 @@ func part2(input [][]int) {
 		}
 	}
 
+	// Extend down 5x
 	for dr := 1; dr < 5; dr++ {
 		for r := 0; r < size; r++ {
 			var nr []int

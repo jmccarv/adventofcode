@@ -103,11 +103,7 @@ func explode(hex string) (ret bits) {
 			panic(fmt.Sprintf("Invalid input: %v", err))
 		}
 		for b := 0; b < 8; b++ {
-			var c byte = 1
-			if x&0x80 == 0 {
-				c = 0
-			}
-			ret = append(ret, c)
+			ret = append(ret, byte((x&0x80)>>7))
 			x <<= 1
 		}
 	}

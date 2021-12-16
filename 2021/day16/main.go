@@ -7,9 +7,7 @@ import (
 	"strconv"
 )
 
-type bits struct {
-	b []byte
-}
+type bits []byte
 
 type packet struct {
 	ver int
@@ -109,7 +107,7 @@ func explode(hex string) (ret bits) {
 			if x&0x80 == 0 {
 				c = 0
 			}
-			ret.b = append(ret.b, c)
+			ret = append(ret, c)
 			x <<= 1
 		}
 	}
@@ -126,7 +124,7 @@ func (b *bits) getPackets() (ret []packet) {
 }
 
 func (b *bits) getNextPacket() (ret []packet) {
-	if len(b.b) < 8 {
+	if len(*b) < 8 {
 		// Ignore any trailing zeros in the encoded message
 		return
 	}
@@ -146,10 +144,10 @@ func (b *bits) getNextPacket() (ret []packet) {
 // Take the next x bits and convert them to an integer (our return value)
 // Move our bits slice past those x bits
 func (b *bits) next(x int) (ret uint64) {
-	for _, i := range b.b[0:x] {
+	for _, i := range (*b)[0:x] {
 		ret = (ret << 1) | uint64(i)
 	}
-	b.b = b.b[x:]
+	*b = (*b)[x:]
 	return
 }
 
@@ -174,7 +172,7 @@ func (b *bits) getSubPackets() (ret []packet) {
 	switch b.next(1) {
 	case 0: // next 15 bits are the total length in bits of the sub packets for this operator
 		splen := int(b.next(15))
-		sub := bits{b: b.b[0:splen]}
+		sub := (*b)[0:splen]
 		//fmt.Println("getOp() parsing packet(s)", sub)
 		ret = append(ret, sub.getPackets()...)
 		//fmt.Println("getOp, back", ret)
@@ -190,8 +188,8 @@ func (b *bits) getSubPackets() (ret []packet) {
 }
 
 func (b bits) String() string {
-	ret := make([]byte, len(b.b))
-	for i, x := range b.b {
+	ret := make([]byte, len(b))
+	for i, x := range b {
 		ret[i] = 48 + x
 	}
 	return string(ret)

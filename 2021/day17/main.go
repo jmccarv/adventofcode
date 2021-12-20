@@ -9,8 +9,6 @@ import (
 	"strconv"
 )
 
-type times []int
-
 type point struct {
 	x, y int
 }
@@ -24,7 +22,7 @@ type hit struct {
 	v0 int // initial velocity
 	v1 int // final velocity
 	t  int // time of hit
-	s  int // net distance traveled
+	s  int // net distance traveled from origin
 }
 
 // distance traveled (s): s = (v0 + v1) * t/2
@@ -42,7 +40,7 @@ func main() {
 		panic("Invalid input")
 	}
 
-	// target is defined by a the top-left and bottom-right points of a box
+	// target is defined by the top-left and bottom-right points of a box
 	// y is negative, so max gets the top of the box
 	target := box{
 		point{min(atoi(m[0]), atoi(m[1])), max(atoi(m[2]), atoi(m[3]))},

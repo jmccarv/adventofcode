@@ -26,12 +26,14 @@ func main() {
 	for s.Scan() {
 		nums = append(nums, parseNum(s.Text()))
 	}
-	fmt.Println(nums)
+	//fmt.Println(nums)
 	part1(nums)
+	part2(nums)
 
 	//testExplode(nums)
 }
 
+/*
 func testExplode(nums []number) {
 	for _, n := range nums {
 		fmt.Println(n)
@@ -39,6 +41,7 @@ func testExplode(nums []number) {
 		fmt.Println()
 	}
 }
+*/
 
 func part1(nums []number) {
 	n := nums[0]
@@ -48,16 +51,34 @@ func part1(nums []number) {
 	fmt.Println(n.magnitude())
 }
 
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func part2(nums []number) {
+	m := 0
+	for i := 0; i < len(nums)-1; i++ {
+		for j := i + 1; j < len(nums); j++ {
+			m = max(m, nums[i].add(nums[j]).magnitude())
+			m = max(m, nums[j].add(nums[i]).magnitude())
+		}
+	}
+	fmt.Println(m)
+}
+
 func (n number) add(n1 number) number {
-	fmt.Println("Add", n, "+", n1)
+	//fmt.Println("Add", n, "+", n1)
 	ret := number{token{typ: literal, char: '['}}
 	ret = append(ret, n...)
 	ret = append(ret, token{typ: literal, char: ','})
 	ret = append(ret, n1...)
 	ret = append(ret, token{typ: literal, char: ']'})
-	fmt.Println("=(unreduced)", ret)
+	//fmt.Println("=(unreduced)", ret)
 	ret = ret.reduce()
-	fmt.Println("=", ret)
+	//fmt.Println("=", ret)
 	return ret
 }
 
@@ -69,7 +90,7 @@ func (n number) reduce() number {
 		done = true
 		n1 := number{}
 		depth := 0
-		fmt.Println(n)
+		//fmt.Println(n)
 		for i, t := range n {
 			if t.typ == literal {
 				switch t.char {
@@ -82,7 +103,7 @@ func (n number) reduce() number {
 				if depth > 4 {
 					// explode
 					done = false
-					fmt.Printf("E %d ", i)
+					//fmt.Printf("E %d ", i)
 					for j := i - 1; j > 0; j-- {
 						if n[j].typ == value {
 							n[j].val += t.val
@@ -110,7 +131,7 @@ func (n number) reduce() number {
 				if t.val > 9 {
 					// split
 					done = false
-					fmt.Printf("S %d ", i)
+					//fmt.Printf("S %d ", i)
 					l := t.val / 2
 					r := t.val - l
 
@@ -145,7 +166,7 @@ func (n number) magnitude() int {
 			m.push(m.pop()*2 + m.pop()*3)
 		}
 	}
-	fmt.Println("stack len", len(*m))
+	//fmt.Println("stack len", len(*m))
 	return m.pop()
 }
 

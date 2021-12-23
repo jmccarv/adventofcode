@@ -142,6 +142,8 @@ func (s *cloud) detect(s2 *cloud) (found bool) {
 			s2.rotate(rotations[1])
 			s2.rotate(rotations[0])
 		}
+
+		// return s to it's original orientation
 		s.translate(xlate_back)
 
 		if overlap > 11 {

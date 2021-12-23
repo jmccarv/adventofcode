@@ -13,10 +13,6 @@ type point struct {
 	x, y, z int
 }
 
-type rotate struct {
-	xdeg, zdeg int
-}
-
 type beaconPair struct {
 	p1       point
 	p2       point
@@ -55,42 +51,12 @@ func main() {
 		clouds = append(clouds, s)
 	}
 
-	part1(clouds)
+	solve(clouds)
 }
 
-func test() {
-	p := point{5, 6, -4}
-	for x := 0; x < 4; x++ {
-		px := p.rotate('x', x*90)
-		fmt.Println(px, px.rotate('z', 90), px.rotate('z', 180), px.rotate('z', 270), px.rotate('y', 90), px.rotate('y', 270))
-	}
-}
-
-func part1(clouds []*cloud) {
+func solve(clouds []*cloud) {
 	var found, remain []*cloud
 	clouds[0].locked = 1
-
-	/*
-		fmt.Println(clouds)
-		if clouds[0].detect(clouds[1]) {
-			fmt.Println("found", clouds[0], clouds[1])
-			m := make(map[point]int)
-			for _, p := range clouds[0].beacons {
-				m[p]++
-			}
-			for _, p := range clouds[1].beacons {
-				m[p]++
-			}
-			fmt.Println(len(m))
-			for k, v := range m {
-				if v > 1 {
-					x := point{-clouds[1].origin.x, -clouds[1].origin.y, -clouds[1].origin.z}
-					fmt.Println(k, k.translate(x))
-				}
-			}
-		}
-		return
-	*/
 
 	found = append(found, clouds[0])
 	remain = append(remain, clouds[1:]...)
@@ -122,7 +88,15 @@ func part1(clouds []*cloud) {
 			m[p]++
 		}
 	}
-	fmt.Println(len(m))
+	fmt.Println("Part1", len(m))
+
+	dist := 0
+	for i := 0; i < len(clouds)-1; i++ {
+		for j := i + 1; j < len(clouds); j++ {
+			dist = max(dist, distance(clouds[i].origin, clouds[j].origin))
+		}
+	}
+	fmt.Println("Part2", dist)
 
 	//fmt.Println(nr)
 }
@@ -278,6 +252,18 @@ func distance(p1, p2 point) float64 {
 	return math.Sqrt(math.Pow(p2.x-p1.x, 2) + math.Pow(p2.y-p1.y, 2) + math.Pow(p2.z-p1.z, 2))
 }
 */
+
+// Manhattan distance
+func distance(p1, p2 point) int {
+	return abs(p1.x-p2.x) + abs(p1.y-p2.y) + abs(p1.z-p2.z)
+}
+
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
+}
 
 /*
 func part1()

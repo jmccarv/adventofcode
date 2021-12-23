@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -14,10 +13,10 @@ type point struct {
 }
 
 type cloud struct {
-	id      int
-	origin  point
-	beacons []point
-	locked  byte
+	id       int
+	origin   point
+	beacons  []point
+	searched bool
 }
 
 type rotation struct {
@@ -54,33 +53,32 @@ func main() {
 }
 
 func solve(clouds []*cloud) {
-	var found, search, remain []*cloud
-	clouds[0].locked = 1
+	var found, remain []*cloud
 
-	search = append(search, clouds[0])
 	found = append(found, clouds[0])
 	remain = append(remain, clouds[1:]...)
 	done := false
 
 	for !done {
 		done = true
-		var newSearch []*cloud
-		for _, s1 := range search {
-			var r, f []*cloud
+		for _, s1 := range found {
+			if s1.searched {
+				continue
+			}
+			s1.searched = true
+
+			var r []*cloud
 			for _, s2 := range remain {
 				if s1.detect(s2) {
 					done = false
-					f = append(f, s2)
+					found = append(found, s2)
 					fmt.Println("Found:", s2, " From", s1)
 				} else {
 					r = append(r, s2)
 				}
 			}
-			found = append(found, f...)
-			newSearch = append(newSearch, f...)
 			remain = r
 		}
-		search = newSearch
 	}
 	if len(remain) > 0 {
 		panic("Failed to lock all scanners :(")
@@ -147,9 +145,6 @@ func (s *cloud) detect(s2 *cloud) (found bool) {
 			// Orient s2 the same as s1
 			s2.translate(xlate_back)
 
-			// Don't move this cloud again
-			s2.locked = 1
-
 			// s2 is now locked in the same orientation / origin as s1
 			found = true
 			return
@@ -159,7 +154,7 @@ func (s *cloud) detect(s2 *cloud) (found bool) {
 }
 
 func (s *cloud) overlapping(s2 *cloud) (nr int) {
-	m := make(map[point]struct{})
+	m := make(map[point]struct{}, len(s.beacons))
 	for _, b := range s.beacons {
 		m[b] = struct{}{}
 	}
@@ -186,7 +181,7 @@ func (s *cloud) rotate(r rotation) {
 }
 
 func (c *cloud) String() string {
-	return fmt.Sprintf("{id: %2d origin: %v nrpt: %d lck: %d}", c.id, c.origin, len(c.beacons), c.locked)
+	return fmt.Sprintf("{id: %2d origin: %v nrpt: %d}", c.id, c.origin, len(c.beacons))
 }
 
 func (p point) translate(by point) point {
@@ -200,6 +195,21 @@ func (p point) String() string {
 	return fmt.Sprintf("%5d,%5d,%5d", p.x, p.y, p.z)
 }
 
+// Minimal rotation function that should be faster than the full blown floating
+// point version below
+func (p point) rotate(r rotation) point {
+	switch r.around {
+	case 'x':
+		return point{p.x, -p.z, p.y}
+	case 'y':
+		return point{p.z, p.y, -p.x}
+	default:
+		panic("Invalid axis of rotation")
+	}
+	return point{}
+}
+
+/*
 func (p point) rotate(r rotation) point {
 	if r.deg == 0 {
 		return p
@@ -223,6 +233,7 @@ func (p point) rotate(r rotation) point {
 	}
 	return p
 }
+*/
 
 func max(a, b int) int {
 	if a > b {

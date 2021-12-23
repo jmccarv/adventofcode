@@ -17,6 +17,7 @@ type cloud struct {
 	origin   point
 	beacons  []point
 	searched bool
+	bmap     map[point]map[point]struct{}
 }
 
 type rotation struct {
@@ -66,6 +67,7 @@ func solve(clouds []*cloud) {
 				continue
 			}
 			s1.searched = true
+			s1.bmap = make(map[point]map[point]struct{}, len(s1.beacons))
 
 			var r []*cloud
 			for _, s2 := range remain {
@@ -78,6 +80,7 @@ func solve(clouds []*cloud) {
 				}
 			}
 			remain = r
+			s1.bmap = map[point]map[point]struct{}{} // release the map
 		}
 	}
 	if len(remain) > 0 {
@@ -154,9 +157,13 @@ func (s *cloud) detect(s2 *cloud) (found bool) {
 }
 
 func (s *cloud) overlapping(s2 *cloud) (nr int) {
-	m := make(map[point]struct{}, len(s.beacons))
-	for _, b := range s.beacons {
-		m[b] = struct{}{}
+	m, ok := s.bmap[s.origin]
+	if !ok {
+		m = make(map[point]struct{}, len(s.beacons))
+		s.bmap[s.origin] = m
+		for _, b := range s.beacons {
+			m[b] = struct{}{}
+		}
 	}
 	for _, b := range s2.beacons {
 		if _, ok := m[b]; ok {

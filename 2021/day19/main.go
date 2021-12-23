@@ -13,17 +13,16 @@ type point struct {
 	x, y, z int
 }
 
-type beaconPair struct {
-	p1       point
-	p2       point
-	distance float64
-}
-
 type cloud struct {
 	id      int
 	origin  point
 	beacons []point
 	locked  byte
+}
+
+type rotation struct {
+	around byte
+	deg    int
 }
 
 func main() {
@@ -97,13 +96,6 @@ func solve(clouds []*cloud) {
 		}
 	}
 	fmt.Println("Part2", dist)
-
-	//fmt.Println(nr)
-}
-
-type rotation struct {
-	around byte
-	deg    int
 }
 
 func (s *cloud) detect(s2 *cloud) (found bool) {
@@ -239,11 +231,6 @@ func atoi(s string) int {
 	return x
 }
 
-func atof(s string) float64 {
-	x, _ := strconv.ParseFloat(s, 64)
-	return x
-}
-
 // distance between two points, A & B:
 // AB = √( (x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2 )
 /*
@@ -263,52 +250,3 @@ func abs(a int) int {
 	}
 	return a
 }
-
-/*
-func part1()
-	candidates := clouds[0].beacons
-
-	fmt.Println("candidate len", len(candidates))
-	for _, s := range clouds[1:] {
-		candidates = s.find(candidates)
-		fmt.Println("candidate len", len(candidates))
-		//break
-	}
-}
-*/
-
-/*
-func (s cloud) find(beacons []point) (found []point) {
-	bp := make(map[float64]beaconPair)
-	for i := 0; i < len(beacons)-1; i++ {
-		b1 := beacons[i]
-		for j := i + 1; j < len(beacons); j++ {
-			b2 := beacons[j]
-			p := beaconPair{b1, b2, distance(b1, b2)}
-			if x, ok := bp[p.distance]; ok {
-				fmt.Println("Whoops, duplicate lenghts")
-				fmt.Println(x)
-				fmt.Println(p)
-			}
-			bp[p.distance] = p
-		}
-	}
-	fmt.Println()
-	fmt.Println(bp)
-	fmt.Println()
-
-	for i := 0; i < len(s.beacons)-1; i++ {
-		b1 := s.beacons[i]
-		for j := i + 1; j < len(s.beacons); j++ {
-			b2 := s.beacons[j]
-			p := beaconPair{b1, b2, distance(b1, b2)}
-			if f, ok := bp[p.distance]; ok {
-				fmt.Println("Found one", f)
-				found = append(found, f.p1, f.p2)
-			}
-		}
-	}
-
-	return
-}
-*/

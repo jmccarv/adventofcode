@@ -58,6 +58,7 @@ func solve(clouds []*cloud) {
 	clouds[0].locked = 1
 
 	search = append(search, clouds[0])
+	found = append(found, clouds[0])
 	remain = append(remain, clouds[1:]...)
 	done := false
 
@@ -65,8 +66,7 @@ func solve(clouds []*cloud) {
 		done = true
 		var newSearch []*cloud
 		for _, s1 := range search {
-			var r []*cloud
-			var f []*cloud
+			var r, f []*cloud
 			for _, s2 := range remain {
 				if s1.detect(s2) {
 					done = false
@@ -76,9 +76,9 @@ func solve(clouds []*cloud) {
 					r = append(r, s2)
 				}
 			}
-			remain = r
 			found = append(found, f...)
 			newSearch = append(newSearch, f...)
+			remain = r
 		}
 		search = newSearch
 	}

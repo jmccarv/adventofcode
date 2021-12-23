@@ -54,28 +54,33 @@ func main() {
 }
 
 func solve(clouds []*cloud) {
-	var found, remain []*cloud
+	var found, search, remain []*cloud
 	clouds[0].locked = 1
 
-	found = append(found, clouds[0])
+	search = append(search, clouds[0])
 	remain = append(remain, clouds[1:]...)
 	done := false
 
 	for !done {
 		done = true
-		for _, s1 := range found {
+		var newSearch []*cloud
+		for _, s1 := range search {
 			var r []*cloud
+			var f []*cloud
 			for _, s2 := range remain {
 				if s1.detect(s2) {
 					done = false
-					found = append(found, s2)
-					fmt.Println("Found:", s2)
+					f = append(f, s2)
+					fmt.Println("Found:", s2, " From", s1)
 				} else {
 					r = append(r, s2)
 				}
 			}
 			remain = r
+			found = append(found, f...)
+			newSearch = append(newSearch, f...)
 		}
+		search = newSearch
 	}
 	if len(remain) > 0 {
 		panic("Failed to lock all scanners :(")
@@ -181,7 +186,7 @@ func (s *cloud) rotate(r rotation) {
 }
 
 func (c *cloud) String() string {
-	return fmt.Sprintf("{id: %d  origin: %v  nrpt: %d  lck: %d}", c.id, c.origin, len(c.beacons), c.locked)
+	return fmt.Sprintf("{id: %2d origin: %v nrpt: %d lck: %d}", c.id, c.origin, len(c.beacons), c.locked)
 }
 
 func (p point) translate(by point) point {
@@ -192,7 +197,7 @@ func (p point) translate(by point) point {
 }
 
 func (p point) String() string {
-	return fmt.Sprintf("{%4d %4d %4d}", p.x, p.y, p.z)
+	return fmt.Sprintf("%5d,%5d,%5d", p.x, p.y, p.z)
 }
 
 func (p point) rotate(r rotation) point {

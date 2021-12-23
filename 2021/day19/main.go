@@ -101,7 +101,19 @@ func solve(clouds []*cloud) {
 	//fmt.Println(nr)
 }
 
+type rotation struct {
+	around byte
+	deg    int
+}
+
 func (s *cloud) detect(s2 *cloud) (found bool) {
+	rotations := [4]rotation{
+		rotation{'x', 90},
+		rotation{'y', 90},
+		rotation{'y', 90},
+		rotation{'y', 90},
+	}
+
 	overlap := 0
 	for _, b := range s.beacons {
 		// Translate this to the origin 0,0,0
@@ -111,52 +123,37 @@ func (s *cloud) detect(s2 *cloud) (found bool) {
 		s.translate(xlate_origin)
 		b = point{}
 
+		// Now go through all possible rotations and count how many beacons are in common between s and s2
+		// If we have at 12 or more we've matched s1 to s2 and have located s2's scanner's origin
 	out:
-		for _, b2 := range s2.beacons {
-			// Let's pretend this beacon (b2) is the same as b and see what we find
-			xlate2 := point{-b2.x, -b2.y, -b2.z}
-			s2.translate(xlate2)
-			b2 = point{}
-
-			// Now go through all possible rotations and count how many beacons are in common between s and s2
-			// I think I'm doing too much work here but my head hurts and this is working
-			for x := 0; x < 4; x++ {
-				s2.rotate('x', 90)
-				if overlap = s.overlapping(s2); overlap > 11 {
-					break out
-				}
-				for z := 0; z < 4; z++ {
-					s2.rotate('z', 90)
-					if overlap = s.overlapping(s2); overlap > 11 {
-						break out
-					}
-
-					for y := 0; y < 4; y++ {
-						s2.rotate('y', 90)
+		for p := 0; p < 2; p++ {
+			for q := 0; q < 3; q++ {
+				for _, r := range rotations {
+					s2.rotate(r)
+					for _, b2 := range s2.beacons {
+						s2.translate(point{-b2.x, -b2.y, -b2.z})
 						if overlap = s.overlapping(s2); overlap > 11 {
 							break out
 						}
 					}
 				}
-				/*
-					s2.rotate('y', 90)
-					if overlap = s.overlapping(s2); overlap > 11 {
-						break out
-					}
-					s2.rotate('y', 180)
-					if overlap = s.overlapping(s2); overlap > 11 {
-						break out
-					}
-				*/
 			}
+			s2.rotate(rotations[0])
+			s2.rotate(rotations[1])
+			s2.rotate(rotations[0])
 		}
 		s.translate(xlate_back)
 
 		if overlap > 11 {
+			// Orient s2 the same as s1
 			s2.translate(xlate_back)
+
+			// Don't move this cloud again
 			s2.locked = 1
+
+			// s2 is now locked in the same orientation / origin as s1
 			found = true
-			break
+			return
 		}
 	}
 	return
@@ -182,11 +179,11 @@ func (s *cloud) translate(by point) {
 	}
 }
 
-func (s *cloud) rotate(around byte, deg int) {
+func (s *cloud) rotate(r rotation) {
 	for i, _ := range s.beacons {
-		s.beacons[i] = s.beacons[i].rotate(around, deg)
+		s.beacons[i] = s.beacons[i].rotate(r)
 	}
-	s.origin = s.origin.rotate(around, deg)
+	s.origin = s.origin.rotate(r)
 }
 
 func (c *cloud) String() string {
@@ -204,17 +201,17 @@ func (p point) String() string {
 	return fmt.Sprintf("{%4d %4d %4d}", p.x, p.y, p.z)
 }
 
-func (p point) rotate(around byte, deg int) point {
-	if deg == 0 {
+func (p point) rotate(r rotation) point {
+	if r.deg == 0 {
 		return p
 	}
 
-	sin, cos := math.Sincos(float64(deg) * math.Pi / 180)
+	sin, cos := math.Sincos(float64(r.deg) * math.Pi / 180)
 	x := float64(p.x)
 	y := float64(p.y)
 	z := float64(p.z)
 
-	switch around {
+	switch r.around {
 	case 'x':
 		p.y = int(math.Round(y*cos - z*sin))
 		p.z = int(math.Round(y*sin + z*cos))

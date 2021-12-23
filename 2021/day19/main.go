@@ -13,27 +13,35 @@ type point struct {
 	x, y, z int
 }
 
+type rotate struct {
+	xdeg, zdeg int
+}
+
 type beaconPair struct {
 	p1       point
 	p2       point
 	distance float64
 }
 
-type scanner struct {
+type cloud struct {
+	id      int
 	origin  point
 	beacons []point
+	locked  byte
 }
 
 func main() {
-	var scanners []scanner
-	var s scanner
+	var clouds []*cloud
+	s := &cloud{}
+	id := 0
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		if strings.Index(input.Text(), "scanner") > -1 {
 			if len(s.beacons) > 0 {
-				scanners = append(scanners, s)
-				s = scanner{}
+				clouds = append(clouds, s)
+				id++
+				s = &cloud{id: id}
 			}
 			continue
 		}
@@ -44,17 +52,10 @@ func main() {
 		}
 	}
 	if len(s.beacons) > 0 {
-		scanners = append(scanners, s)
+		clouds = append(clouds, s)
 	}
 
-	/*
-		fmt.Println(scanners)
-		for i := 1; i < len(scanners[0].beacons)-1; i++ {
-			b := scanners[0].beacons
-			fmt.Println(b[i], b[i+1], distance(b[i], b[i+1]))
-		}
-	*/
-	part1(scanners)
+	part1(clouds)
 }
 
 func test() {
@@ -65,92 +66,157 @@ func test() {
 	}
 }
 
-func part1(scanners []scanner) {
-	for _, s1 := range scanners {
-		for _, s2 := range scanners[1:] {
-			fmt.Println("here")
-			s1.findOverlap(s2)
-			return
+func part1(clouds []*cloud) {
+	var found, remain []*cloud
+	clouds[0].locked = 1
+
+	/*
+		fmt.Println(clouds)
+		if clouds[0].detect(clouds[1]) {
+			fmt.Println("found", clouds[0], clouds[1])
+			m := make(map[point]int)
+			for _, p := range clouds[0].beacons {
+				m[p]++
+			}
+			for _, p := range clouds[1].beacons {
+				m[p]++
+			}
+			fmt.Println(len(m))
+			for k, v := range m {
+				if v > 1 {
+					x := point{-clouds[1].origin.x, -clouds[1].origin.y, -clouds[1].origin.z}
+					fmt.Println(k, k.translate(x))
+				}
+			}
+		}
+		return
+	*/
+
+	found = append(found, clouds[0])
+	remain = append(remain, clouds[1:]...)
+	done := false
+
+	for !done {
+		done = true
+		for _, s1 := range found {
+			var r []*cloud
+			for _, s2 := range remain {
+				if s1.detect(s2) {
+					done = false
+					found = append(found, s2)
+					fmt.Println("Found:", s2)
+				} else {
+					r = append(r, s2)
+				}
+			}
+			remain = r
 		}
 	}
-	//for
+	if len(remain) > 0 {
+		panic("Failed to lock all scanners :(")
+	}
+
+	m := make(map[point]int)
+	for _, s := range found {
+		for _, p := range s.beacons {
+			m[p]++
+		}
+	}
+	fmt.Println(len(m))
+
+	//fmt.Println(nr)
 }
 
-func (s scanner) findOverlap(s2 scanner) []point {
-	for i1, b := range s.beacons {
+func (s *cloud) detect(s2 *cloud) (found bool) {
+	overlap := 0
+	for _, b := range s.beacons {
 		// Translate this to the origin 0,0,0
-		xlate1 := point{-b.x, -b.y, -b.z}
-		s.translate(xlate1)
+		xlate_origin := point{-b.x, -b.y, -b.z}
+		xlate_back := b
+
+		s.translate(xlate_origin)
 		b = point{}
 
-		for i2, b2 := range s2.beacons {
+	out:
+		for _, b2 := range s2.beacons {
 			// Let's pretend this beacon (b2) is the same as b and see what we find
 			xlate2 := point{-b2.x, -b2.y, -b2.z}
 			s2.translate(xlate2)
 			b2 = point{}
 
 			// Now go through all possible rotations and count how many beacons are in common between s and s2
-			nr := 0
+			// I think I'm doing too much work here but my head hurts and this is working
 			for x := 0; x < 4; x++ {
 				s2.rotate('x', 90)
-				nr = s.countOverlap(s2)
-				if nr > 11 {
-					break
+				if overlap = s.overlapping(s2); overlap > 11 {
+					break out
 				}
-				for z := 1; z < 4; z++ {
+				for z := 0; z < 4; z++ {
 					s2.rotate('z', 90)
-					nr = s.countOverlap(s2)
-					if nr > 11 {
-						break
+					if overlap = s.overlapping(s2); overlap > 11 {
+						break out
+					}
+
+					for y := 0; y < 4; y++ {
+						s2.rotate('y', 90)
+						if overlap = s.overlapping(s2); overlap > 11 {
+							break out
+						}
 					}
 				}
-				s2.rotate('y', 90)
-				nr = s.countOverlap(s2)
-				if nr > 11 {
-					break
-				}
-				s2.rotate('y', 180)
-				nr = s.countOverlap(s2)
-				if nr > 11 {
-					break
-				}
-			}
-			if nr > 11 {
-				fmt.Println(i1, i2, nr, s.origin, s2.origin)
-				break
+				/*
+					s2.rotate('y', 90)
+					if overlap = s.overlapping(s2); overlap > 11 {
+						break out
+					}
+					s2.rotate('y', 180)
+					if overlap = s.overlapping(s2); overlap > 11 {
+						break out
+					}
+				*/
 			}
 		}
+		s.translate(xlate_back)
+
+		if overlap > 11 {
+			s2.translate(xlate_back)
+			s2.locked = 1
+			found = true
+			break
+		}
 	}
-	return []point{}
+	return
 }
 
-func (s scanner) countOverlap(s2 scanner) int {
-	ret := 0
+func (s *cloud) overlapping(s2 *cloud) (nr int) {
 	m := make(map[point]struct{})
 	for _, b := range s.beacons {
 		m[b] = struct{}{}
 	}
-
 	for _, b := range s2.beacons {
 		if _, ok := m[b]; ok {
-			ret++
+			nr++
 		}
 	}
-	return ret
+	return
 }
 
-func (s *scanner) translate(by point) {
+func (s *cloud) translate(by point) {
 	s.origin = s.origin.translate(by)
 	for i, _ := range s.beacons {
 		s.beacons[i] = s.beacons[i].translate(by)
 	}
 }
 
-func (s *scanner) rotate(around byte, deg int) {
+func (s *cloud) rotate(around byte, deg int) {
 	for i, _ := range s.beacons {
 		s.beacons[i] = s.beacons[i].rotate(around, deg)
 	}
 	s.origin = s.origin.rotate(around, deg)
+}
+
+func (c *cloud) String() string {
+	return fmt.Sprintf("{id: %d  origin: %v  nrpt: %d  lck: %d}", c.id, c.origin, len(c.beacons), c.locked)
 }
 
 func (p point) translate(by point) point {
@@ -215,10 +281,10 @@ func distance(p1, p2 point) float64 {
 
 /*
 func part1()
-	candidates := scanners[0].beacons
+	candidates := clouds[0].beacons
 
 	fmt.Println("candidate len", len(candidates))
-	for _, s := range scanners[1:] {
+	for _, s := range clouds[1:] {
 		candidates = s.find(candidates)
 		fmt.Println("candidate len", len(candidates))
 		//break
@@ -227,7 +293,7 @@ func part1()
 */
 
 /*
-func (s scanner) find(beacons []point) (found []point) {
+func (s cloud) find(beacons []point) (found []point) {
 	bp := make(map[float64]beaconPair)
 	for i := 0; i < len(beacons)-1; i++ {
 		b1 := beacons[i]

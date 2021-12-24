@@ -16,8 +16,9 @@ type bounds struct {
 }
 
 type image struct {
-	b   bounds
-	lit map[point]bool // map of all lit pixels
+	inner bounds
+	outer bounds
+	lit   map[point]bool // map of all lit pixels
 }
 
 var xform [512]bool
@@ -39,8 +40,6 @@ func main() {
 			xform[i] = true
 		}
 	}
-	//fmt.Println(xform)
-	//return
 
 	r := 0
 	for input.Scan() {
@@ -49,7 +48,7 @@ func main() {
 			continue
 		}
 
-		img.b.max.c = max(img.b.max.c, len(input.Text()))
+		img.inner.max.c = max(img.inner.max.c, len(input.Text())-1)
 		for c, p := range input.Text() {
 
 			if p == '#' {
@@ -58,42 +57,46 @@ func main() {
 		}
 		r++
 	}
-	img.b.min = point{-2, -2}
-	img.b.max.c += 2
-	img.b.max.r = r + 1
+	img.inner.max.r = r - 1
+	img.outer.min = point{-100, -100}
+	img.outer.max.r = img.inner.max.r + 100
+	img.outer.max.c = img.inner.max.c + 100
 
-	img.dump()
+	// part 1
+	//img.dump()
 	fmt.Println(img)
-
-	img.solve()
-	img.dump()
-	fmt.Println(img)
-
-	img.solve()
-	img.dump()
-	fmt.Println(img)
-
-	nr := 0
-	for r := img.b.min.r; r <= img.b.max.r; r++ {
-		for c := img.b.min.c; c <= img.b.max.c; c++ {
-			if img.lit[point{r, c}] {
-				nr++
-			}
-		}
+	for i := 0; i < 2; i++ {
+		img.iterate()
+		fmt.Println(img)
 	}
-	fmt.Println(nr)
+	part1 := img.nrLit()
+
+	// part 2
+	for i := 0; i < 48; i++ {
+		img.iterate()
+	}
+	fmt.Println(img)
+	part2 := img.nrLit()
+	fmt.Println("part1", part1)
+	fmt.Println("part2", part2)
 }
 
-func (img *image) solve() {
-	n := image{b: img.b, lit: make(map[point]bool)}
+func (img *image) iterate() {
+	n := *img
+	n.lit = make(map[point]bool)
 
-	for r := img.b.min.r - 1; r <= img.b.max.r+1; r++ {
-		for c := img.b.min.c - 1; c <= img.b.max.c+1; c++ {
+	for r := n.outer.min.r - 1; r <= n.outer.max.r+1; r++ {
+		for c := n.outer.min.c - 1; c <= n.outer.max.c+1; c++ {
 			if img.enhanced(point{r, c}) {
 				n.light(point{r, c})
 			}
 		}
 	}
+
+	n.inner.min.r--
+	n.inner.min.c--
+	n.inner.max.r++
+	n.inner.max.c++
 	*img = n
 }
 
@@ -114,18 +117,25 @@ func (i *image) enhanced(p point) bool {
 	return xform[idx]
 }
 
-func (i *image) dark(p point) {
-	delete(i.lit, p)
+func (i image) nrLit() (nr int) {
+	for r := i.inner.min.r; r <= i.inner.max.r; r++ {
+		for c := i.inner.min.c; c <= i.inner.max.c; c++ {
+			if i.lit[point{r, c}] {
+				nr++
+			}
+		}
+	}
+	return
 }
 
 func (i image) String() string {
-	return fmt.Sprintf("min: %v max: %v lit: %d", i.b.min, i.b.max, len(i.lit))
+	return fmt.Sprintf("inner.min:%v inner.max:%v outer.min:%v outer.max:%v lit:%d", i.inner.min, i.inner.max, i.outer.min, i.outer.max, i.nrLit())
 }
 
 func (i *image) dump() {
 	fmt.Println()
-	for r := i.b.min.r; r <= i.b.max.r; r++ {
-		for c := i.b.min.c; c <= i.b.max.c; c++ {
+	for r := i.inner.min.r; r <= i.inner.max.r; r++ {
+		for c := i.inner.min.c; c <= i.inner.max.c; c++ {
 			if i.lit[point{r, c}] {
 				fmt.Print("#")
 			} else {
@@ -141,23 +151,4 @@ func max(a, b int) int {
 		return a
 	}
 	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func maxPoint(a, b point) point {
-	a.r = max(a.r, b.r)
-	a.c = max(a.c, b.c)
-	return a
-}
-
-func minPoint(a, b point) point {
-	a.r = min(a.r, b.r)
-	a.c = min(a.c, b.c)
-	return a
 }

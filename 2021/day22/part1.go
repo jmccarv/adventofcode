@@ -39,48 +39,10 @@ func main() {
 				continue
 			}
 			grid = append(grid, r)
-			/*
-				if s[0] == "on" {
-					grid.add(r)
-				} else {
-					grid.sub(r)
-				}
-			*/
 		}
 	}
 	fmt.Println(grid)
 	part1(grid)
-}
-
-func (cubes *cuboids) add(r region) {
-	*cubes = append(*cubes, cubes.diff(r)...)
-}
-
-func (cubes *cuboids) diff(r region) cuboids {
-	newCuboids := cuboids{r}
-
-	for _, c := range *cubes {
-		var nc cuboids
-		for _, x := range newCuboids {
-			nc = append(nc, x.sub(c)...)
-		}
-		newCuboids = nc
-	}
-	return newCuboids
-}
-
-func (cubes *cuboids) sub(r region) {
-	var newCuboids cuboids
-	for _, c := range *cubes {
-		newCuboids = append(newCuboids, c.sub(r)...)
-	}
-	*cubes = newCuboids
-	return
-}
-
-// subtract x from r and return zero or more cuboids as a result
-func (r region) sub(x region) cuboids {
-	return []region{}
 }
 
 func part1(cuboids []region) {

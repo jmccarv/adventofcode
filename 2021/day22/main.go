@@ -9,26 +9,28 @@ import (
 	"strings"
 )
 
+// Side note, this method is much better/faster than what I used in part 1.
+// The Part 1 code is terrible, but I just wanted to get to Part 2 quickly...
+
+// A single point represents a 'cube' in our problem definition, so
+// the word 'cube' can also be read as 'point'
+type point [3]int // [x,y,z]
+
+// A cuboid defines a cubish shaped region of points, inclusive.
+// Where all points in this cuboid are considered to be turned 'on'
 type cuboid struct {
 	min point
 	max point
 }
 
+// This is our game grid -- a list of all 'on' cuboid regions
 type cuboids []cuboid
-
-type point [3]int // [x,y,z]
-/*
-type point struct {
-	x, y, z int
-}
-*/
 
 func main() {
 	var grid cuboids
 	input := bufio.NewScanner(os.Stdin)
 
 	re := regexp.MustCompile(`[-0-9]+`)
-	//in:
 	for input.Scan() {
 		s := strings.SplitN(input.Text(), " ", 2)
 		m := re.FindAllString(s[1], 6)
@@ -39,16 +41,6 @@ func main() {
 				max: point{max(w[0], w[1]), max(w[2], w[3]), max(w[4], w[5])},
 			}
 
-			// part1
-			/*
-				for i := 0; i < 3; i++ {
-					if r.min[i] < -50 || r.max[i] > 50 {
-						fmt.Println(i, r.min[i], r.max[i], input.Text())
-						continue in
-					}
-				}
-			*/
-
 			switch s[0] {
 			case "on":
 				grid.add(r)
@@ -57,10 +49,12 @@ func main() {
 			}
 		}
 	}
-	//fmt.Println(grid)
-	fmt.Println(grid.count())
+	fmt.Println("Cuboids:", len(grid))
+	fmt.Println("Part2:", grid.count())
 }
 
+// Return how many total points(cubes) are contained in all cuboids
+// This is the number of points/cubes that are 'on'
 func (cubes cuboids) count() (ret int) {
 	for _, c := range cubes {
 		ret += (1 + c.max[0] - c.min[0]) * (1 + c.max[1] - c.min[1]) * (1 + c.max[2] - c.min[2])
@@ -68,11 +62,14 @@ func (cubes cuboids) count() (ret int) {
 	return
 }
 
+// Turn 'on' all points in the given cuboid by
+// adding it to our list of all 'on' cubes
 func (cubes *cuboids) add(r cuboid) {
 	*cubes = append(*cubes, cubes.diff(r)...)
-	//cubes.verify()
 }
 
+// given a cuboid, 'r', return a list of cuboids conained in r
+// that are not already contained in the set 'cubes'
 func (cubes *cuboids) diff(r cuboid) cuboids {
 	newCuboids := cuboids{r}
 
@@ -86,36 +83,30 @@ func (cubes *cuboids) diff(r cuboid) cuboids {
 	return newCuboids
 }
 
+// Turn 'off' all cubes in the given cuboid by
+// removing them from our list. This means having
+// to intersect r with all full list to find out what cubes
+// need to be removed.
 func (cubes *cuboids) sub(r cuboid) {
 	var newCuboids cuboids
 	for _, c := range *cubes {
 		newCuboids = append(newCuboids, c.sub(r)...)
 	}
 	*cubes = newCuboids
-	cubes.verify()
 	return
 }
 
-func (cubes cuboids) verify() {
-	if len(cubes) < 2 {
-		return
-	}
-	for i, c1 := range cubes[1:] {
-		for _, c2 := range cubes[0:i] {
-			if c1.overlapsWith(c2) {
-				fmt.Println("*** Overlap ***", c1, c2)
-			}
-		}
-	}
-}
-
 // subtract x from r and return zero or more cuboids as a result
+// This is easier to picture in 2D but basically for each face
+// of 'x' we are treating that face as a plane to cut 'r'
+// if it intersects with 'x'. We add the part of 'x' that was
+// outside the cut plane to our list to return and continue to
+// the next face.
 func (r cuboid) sub(x cuboid) cuboids {
 
 	// Quick check to see if they overlap, if they don't
 	// there's no need to perform any processing, we just
 	// return the original cuboid
-	//fmt.Println("sub: ", x, "from", r)
 	if !r.overlapsWith(x) {
 		return []cuboid{r}
 	}
@@ -126,18 +117,20 @@ func (r cuboid) sub(x cuboid) cuboids {
 		if x.min[i] >= r.min[i] {
 			nr := r
 			nr.max[i] = x.min[i] - 1
-			ret = append(ret, nr)
+			if nr.max[i] >= nr.min[i] {
+				ret = append(ret, nr)
+			}
 			r.min[i] = x.min[i]
 		}
 		if x.max[i] <= r.max[i] {
 			nr := r
 			nr.min[i] = x.max[i] + 1
-			ret = append(ret, nr)
+			if nr.max[i] >= nr.min[i] {
+				ret = append(ret, nr)
+			}
 			r.max[i] = x.max[i]
 		}
-		//fmt.Println("i", i, "r", r, "ret", ret)
 	}
-
 	return ret
 }
 

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"runtime/pprof"
 	"sort"
 	"strconv"
 	"strings"
@@ -93,15 +94,41 @@ func main() {
 		fmt.Println(prg.run(os.Args[1]))
 		fmt.Println(prg.regs)
 	} else {
+		f, _ := os.Create("cpu.prof")
+		defer f.Close()
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
 		solve(prg)
 	}
+}
+
+type stateList []state
+
+func (l stateList) Less(a, b int) bool {
+	for i := 0; i < 4; i++ {
+		if l[a].regs[i] < l[b].regs[i] {
+			return true
+		}
+		if l[a].regs[i] > l[b].regs[i] {
+			return false
+		}
+	}
+	return false
+}
+
+func (l stateList) Len() int {
+	return len(l)
+}
+
+func (l stateList) Swap(a, b int) {
+	l[a], l[b] = l[b], l[a]
 }
 
 // Note that this uses a lot of RAM. May be a better way, not sure.
 // Ran in about 1m31s on my puzzle input
 func solve(prg program) {
 	nrinp := 0
-	states := []state{state{}}
+	states := stateList{state{}}
 
 	for _, i := range prg.ins {
 		ra := i.args[0].reg
@@ -117,10 +144,7 @@ func solve(prg program) {
 				states[i].regs[ra] = 0
 			}
 
-			// Sort so we can do a single pass to deduplicate the list
-			sort.Slice(states, func(a, b int) bool {
-				return states[a].regs.less(states[b].regs)
-			})
+			sort.Sort(states)
 
 			// Remove any duplicate states before splitting them
 			fmt.Println("Before", len(states))
@@ -191,18 +215,6 @@ func solve(prg program) {
 	fmt.Println("p1", p1)
 	fmt.Println("p2", p2)
 	return
-}
-
-func (a registers) less(b registers) bool {
-	for i := range a {
-		if a[i] < b[i] {
-			return true
-		}
-		if a[i] > b[i] {
-			return false
-		}
-	}
-	return false
 }
 
 func (r registers) val(o operand) int {

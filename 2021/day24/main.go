@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type operation int
@@ -124,83 +125,113 @@ func (l stateList) Swap(a, b int) {
 	l[a], l[b] = l[b], l[a]
 }
 
+type codeBlock []instruction
+
 // Note that this uses a lot of RAM. May be a better way, not sure.
 // Ran in about 1m31s on my puzzle input
 func solve(prg program) {
-	nrinp := 0
-	states := stateList{state{}}
-
+	var blocks []codeBlock
+	var block codeBlock
 	for _, i := range prg.ins {
-		ra := i.args[0].reg
-		ob := i.args[1]
 		switch i.op {
 		case inp:
-			nrinp++
-			fmt.Println()
-			fmt.Println("input #", nrinp)
-			// Inp is about to change register r, so we can set it to
-			// zero in every state and then deduplicate our list
-			for i := range states {
-				states[i].regs[ra] = 0
+			if len(block) > 0 {
+				blocks = append(blocks, block)
 			}
-
-			sort.Sort(states)
-
-			// Remove any duplicate states before splitting them
-			fmt.Println("Before", len(states))
-			i := 0
-			for j := 1; j < len(states); j++ {
-				if states[i].regs == states[j].regs {
-					states[i].min = min(states[i].min, states[j].min)
-					states[i].max = max(states[i].max, states[j].max)
-					continue
-				}
-				i++
-				states[i] = states[j]
-			}
-			states = states[0 : i+1]
-			fmt.Println(" After", len(states))
-
-			// There are nine possible values we might input, so each of our existing
-			// states split into 9 new states
-			//ns := make([]state, len(states) * 9)
-			newStates := make([]state, 0, len(states)*9)
-			for i := range states {
-				for j := 1; j <= 9; j++ {
-					s := states[i]
-					s.regs[ra] = j
-					s.max = s.max*10 + j
-					s.min = s.min*10 + j
-					newStates = append(newStates, s)
-				}
-			}
-			states = newStates
-		case add:
-			for i := range states {
-				states[i].regs[ra] += states[i].regs.val(ob)
-			}
-		case mul:
-			for i := range states {
-				states[i].regs[ra] *= states[i].regs.val(ob)
-			}
-		case div:
-			for i := range states {
-				states[i].regs[ra] /= states[i].regs.val(ob)
-			}
-		case mod:
-			for i := range states {
-				states[i].regs[ra] %= states[i].regs.val(ob)
-			}
-		case eql:
-			for i := range states {
-				if states[i].regs[ra] == states[i].regs.val(ob) {
-					states[i].regs[ra] = 1
-				} else {
-					states[i].regs[ra] = 0
-				}
-			}
+			block = codeBlock{}
 		}
-		prg.pc++
+		block = append(block, i)
+	}
+	if len(block) > 0 {
+		blocks = append(blocks, block)
+	}
+
+	nrinp := 0
+	states := stateList{state{}}
+	for _, block = range blocks {
+		// first instruction is an inp
+		if block[0].op != inp {
+			panic("Invalid code block!")
+		}
+
+		ra := block[0].args[0].reg
+		nrinp++
+		fmt.Println()
+		fmt.Println("input #", nrinp)
+		// Inp is about to change register r, so we can set it to
+		// zero in every state and then deduplicate our list
+		for i := range states {
+			states[i].regs[ra] = 0
+		}
+
+		sort.Sort(states)
+
+		// Remove any duplicate states before splitting them
+		fmt.Println("Before", len(states))
+		i := 0
+		for j := 1; j < len(states); j++ {
+			if states[i].regs == states[j].regs {
+				states[i].min = min(states[i].min, states[j].min)
+				states[i].max = max(states[i].max, states[j].max)
+				continue
+			}
+			i++
+			states[i] = states[j]
+		}
+		states = states[0 : i+1]
+		fmt.Println(" After", len(states))
+
+		// There are nine possible values we might input, so each of our existing
+		// states split into 9 new states
+		ns := make([]state, len(states)*9)
+		var wg sync.WaitGroup
+		wg.Add(9)
+		for j := 1; j <= 9; j++ {
+			go func(j int, ns []state) {
+				defer wg.Done()
+				ofs := len(states) * (j - 1)
+				ns = ns[ofs : ofs+len(states)]
+
+				for i := range states {
+					ns[i] = states[i]
+					ns[i].regs[ra] = j
+					ns[i].max = ns[i].max*10 + j
+					ns[i].min = ns[i].min*10 + j
+				}
+				for _, i := range block[1:] {
+					ra := i.args[0].reg
+					ob := i.args[1]
+					switch i.op {
+					case add:
+						for st := range ns {
+							ns[st].regs[ra] += ns[st].regs.val(ob)
+						}
+					case mul:
+						for st := range ns {
+							ns[st].regs[ra] *= ns[st].regs.val(ob)
+						}
+					case div:
+						for st := range ns {
+							ns[st].regs[ra] /= ns[st].regs.val(ob)
+						}
+					case mod:
+						for st := range ns {
+							ns[st].regs[ra] %= ns[st].regs.val(ob)
+						}
+					case eql:
+						for st := range ns {
+							if ns[st].regs[ra] == ns[st].regs.val(ob) {
+								ns[st].regs[ra] = 1
+							} else {
+								ns[st].regs[ra] = 0
+							}
+						}
+					}
+				}
+			}(j, ns)
+		}
+		wg.Wait()
+		states = ns
 	}
 
 	p1 := 0

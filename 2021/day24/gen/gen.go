@@ -95,12 +95,12 @@ const (
 
 		ra := block[0].args[0].reg
 
-		sorts += fmt.Sprintf(`sorts = append(sorts, func(ns stateList) {%s
+		sorts += fmt.Sprintf(`sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[%s] = 0
 				}
 				sort.Sort(ns)
-		})%s`, "\n", ra, "\n")
+		})%s`, ra, "\n")
 
 		fmt.Fprintln(fh, "blocks = append(blocks, func(inp int, states, ns []state) {")
 

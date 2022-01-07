@@ -105,6 +105,27 @@ func main() {
 
 type stateList []state
 
+func (a registers) Less(b registers) bool {
+	for i := 0; i < 4; i++ {
+		if a[i] < b[i] {
+			return true
+		}
+		if a[i] > b[i] {
+			return false
+		}
+	}
+	return false
+}
+
+func (a registers) Eq(b registers) bool {
+	for i := 0; i < 4; i++ {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
 func (l stateList) Less(a, b int) bool {
 	for i := 0; i < 4; i++ {
 		if l[a].regs[i] < l[b].regs[i] {
@@ -148,6 +169,8 @@ func solve(prg program) {
 
 	nrinp := 0
 	states := stateList{state{}}
+	ns := make([]stateList, 9)
+	ns[0] = stateList{state{}}
 	for _, block = range blocks {
 		// first instruction is an inp
 		if block[0].op != inp {
@@ -158,13 +181,58 @@ func solve(prg program) {
 		nrinp++
 		fmt.Println()
 		fmt.Println("input #", nrinp)
-		// Inp is about to change register r, so we can set it to
-		// zero in every state and then deduplicate our list
-		for i := range states {
-			states[i].regs[ra] = 0
-		}
 
-		sort.Sort(states)
+		var wg sync.WaitGroup
+		wg.Add(9)
+		for j := 0; j < 9; j++ {
+			go func(ns stateList) {
+				defer wg.Done()
+				// Inp is about to change register r, so we can set it to
+				// zero in every state and then deduplicate our list
+				for i := range ns {
+					ns[i].regs[ra] = 0
+				}
+
+				sort.Sort(ns)
+			}(ns[j])
+		}
+		wg.Wait()
+
+		next := registers{99999999999999, 99999999999999, 99999999999999, 99999999999999}
+		cur := next
+		for _, x := range ns {
+			if len(x) > 0 && x[0].regs.Less(cur) {
+				cur = x[0].regs
+			}
+		}
+		states = states[0:0]
+		done := false
+		for !done {
+			done = true
+			for i := 0; i < 9; i++ {
+				if len(ns[i]) == 0 {
+					continue
+				}
+
+				j := 0
+				for j < len(ns[i]) && ns[i][j].regs.Eq(cur) {
+					states = append(states, ns[i][j])
+					j++
+				}
+				if j < len(ns[i]) {
+					//fmt.Println(i, j, cur, ns[i][j].regs, next)
+					if ns[i][j].regs.Less(next) {
+						next = ns[i][j].regs
+					}
+					ns[i] = ns[i][j:]
+					done = false
+				} else {
+					ns[i] = ns[i][0:0]
+				}
+			}
+			cur = next
+			next = registers{99999999999999, 99999999999999, 99999999999999, 99999999999999}
+		}
 
 		// Remove any duplicate states before splitting them
 		fmt.Println("Before", len(states))
@@ -183,15 +251,12 @@ func solve(prg program) {
 
 		// There are nine possible values we might input, so each of our existing
 		// states split into 9 new states
-		ns := make([]state, len(states)*9)
-		var wg sync.WaitGroup
+		wg = sync.WaitGroup{}
 		wg.Add(9)
-		for j := 1; j <= 9; j++ {
+		for j := 0; j < 9; j++ {
+			ns[j] = make([]state, len(states))
 			go func(j int, ns []state) {
 				defer wg.Done()
-				ofs := len(states) * (j - 1)
-				ns = ns[ofs : ofs+len(states)]
-
 				for i := range states {
 					ns[i] = states[i]
 					ns[i].regs[ra] = j
@@ -228,19 +293,21 @@ func solve(prg program) {
 						}
 					}
 				}
-			}(j, ns)
+			}(j+1, ns[j])
 		}
 		wg.Wait()
-		states = ns
+		//states = ns
 	}
 
 	p1 := 0
 	p2 := 99999999999999
-	for _, s := range states {
-		if s.regs[z] == 0 {
-			fmt.Println(s)
-			p1 = max(p1, s.max)
-			p2 = min(p2, s.min)
+	for _, sl := range ns {
+		for _, s := range sl {
+			if s.regs[z] == 0 {
+				fmt.Println(s)
+				p1 = max(p1, s.max)
+				p2 = min(p2, s.min)
+			}
 		}
 	}
 	fmt.Println("p1", p1)

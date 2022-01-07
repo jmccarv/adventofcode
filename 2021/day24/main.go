@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 type operation int
@@ -140,7 +141,8 @@ func (l stateList) Swap(a, b int) {
 type codeBlock []instruction
 
 // Note that this uses a lot of RAM. May be a better way, not sure.
-// Ran in about 1m31s on my puzzle input
+// Initial version (no parallelism, etc) in about 1m31s on my puzzle input
+// Now runs in about 26sec with better RAM usage characteristics
 func solve(prg program) {
 	var blocks []codeBlock
 	var block codeBlock
@@ -173,9 +175,10 @@ func solve(prg program) {
 		ra := block[0].args[0].reg
 		nrinp++
 		fmt.Println()
+		t1 := time.Now()
 		fmt.Println("input #", nrinp, " -- ")
-		fmt.Println("  merging...")
 
+		fmt.Println("  sorting...")
 		var wg sync.WaitGroup
 		wg.Add(9)
 		for j := 0; j < 9; j++ {
@@ -191,15 +194,23 @@ func solve(prg program) {
 			}(ns[j])
 		}
 		wg.Wait()
+		fmt.Println("  sort done in", time.Now().Sub(t1))
 
 		// Remove any duplicate states before splitting them
+		// We do this at the same time we merge all our ns slices into the final states slice
+		fmt.Println("      merging:", len(ns[0])*9)
+		t1 = time.Now()
 		next := state{regs: registers{99999999999999, 99999999999999, 99999999999999, 99999999999999}, min: 99999999999999}
 		cur := next
+
+		// Find our initial cur value -- the one with smallest registers set
 		for _, x := range ns {
 			if len(x) > 0 && x[0].regs.Less(cur.regs) {
 				cur = x[0]
 			}
 		}
+
+		// revert states back to an empty slice without having to reallocate anything
 		states = statesO[0:0]
 		done := false
 		x := 0
@@ -228,14 +239,17 @@ func solve(prg program) {
 				}
 			}
 			cur = next
-			x++
 			next = state{regs: registers{99999999999999, 99999999999999, 99999999999999, 99999999999999}, min: 9999999999999}
+			x++
 		}
+		fmt.Println("  after merge:", len(states))
+		fmt.Println("  merged in", time.Now().Sub(t1))
 
-		fmt.Println(" After", len(states))
-
+		// We now have a list of unique states to operate on
 		// There are nine possible values we might input, so each of our existing
 		// states split into 9 new states
+		fmt.Println("  processing commands...")
+		t1 = time.Now()
 		wg = sync.WaitGroup{}
 		wg.Add(9)
 		for j := 0; j < 9; j++ {
@@ -281,6 +295,7 @@ func solve(prg program) {
 			}(j+1, ns[j])
 		}
 		wg.Wait()
+		fmt.Println("  processed in", time.Now().Sub(t1))
 		//states = ns
 	}
 

@@ -117,15 +117,6 @@ func (a registers) Less(b registers) bool {
 	return false
 }
 
-func (a registers) Eq(b registers) bool {
-	for i := 0; i < 4; i++ {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
 func (l stateList) Less(a, b int) bool {
 	for i := 0; i < 4; i++ {
 		if l[a].regs[i] < l[b].regs[i] {
@@ -169,8 +160,10 @@ func solve(prg program) {
 
 	nrinp := 0
 	states := stateList{state{}}
+	statesO := states
 	ns := make([]stateList, 9)
-	ns[0] = stateList{state{}}
+	ns[0] = append(ns[0], state{})
+
 	for _, block = range blocks {
 		// first instruction is an inp
 		if block[0].op != inp {
@@ -180,7 +173,8 @@ func solve(prg program) {
 		ra := block[0].args[0].reg
 		nrinp++
 		fmt.Println()
-		fmt.Println("input #", nrinp)
+		fmt.Println("input #", nrinp, " -- ")
+		fmt.Println("  merging...")
 
 		var wg sync.WaitGroup
 		wg.Add(9)
@@ -198,31 +192,34 @@ func solve(prg program) {
 		}
 		wg.Wait()
 
-		next := registers{99999999999999, 99999999999999, 99999999999999, 99999999999999}
+		// Remove any duplicate states before splitting them
+		next := state{regs: registers{99999999999999, 99999999999999, 99999999999999, 99999999999999}, min: 99999999999999}
 		cur := next
 		for _, x := range ns {
-			if len(x) > 0 && x[0].regs.Less(cur) {
-				cur = x[0].regs
+			if len(x) > 0 && x[0].regs.Less(cur.regs) {
+				cur = x[0]
 			}
 		}
-		states = states[0:0]
+		states = statesO[0:0]
 		done := false
+		x := 0
 		for !done {
 			done = true
+			states = append(states, cur)
 			for i := 0; i < 9; i++ {
 				if len(ns[i]) == 0 {
 					continue
 				}
 
 				j := 0
-				for j < len(ns[i]) && ns[i][j].regs.Eq(cur) {
-					states = append(states, ns[i][j])
+				for j < len(ns[i]) && ns[i][j].regs == cur.regs {
+					states[x].min = min(states[x].min, ns[i][j].min)
+					states[x].max = max(states[x].max, ns[i][j].max)
 					j++
 				}
 				if j < len(ns[i]) {
-					//fmt.Println(i, j, cur, ns[i][j].regs, next)
-					if ns[i][j].regs.Less(next) {
-						next = ns[i][j].regs
+					if ns[i][j].regs.Less(next.regs) {
+						next = ns[i][j]
 					}
 					ns[i] = ns[i][j:]
 					done = false
@@ -231,22 +228,10 @@ func solve(prg program) {
 				}
 			}
 			cur = next
-			next = registers{99999999999999, 99999999999999, 99999999999999, 99999999999999}
+			x++
+			next = state{regs: registers{99999999999999, 99999999999999, 99999999999999, 99999999999999}, min: 9999999999999}
 		}
 
-		// Remove any duplicate states before splitting them
-		fmt.Println("Before", len(states))
-		i := 0
-		for j := 1; j < len(states); j++ {
-			if states[i].regs == states[j].regs {
-				states[i].min = min(states[i].min, states[j].min)
-				states[i].max = max(states[i].max, states[j].max)
-				continue
-			}
-			i++
-			states[i] = states[j]
-		}
-		states = states[0 : i+1]
 		fmt.Println(" After", len(states))
 
 		// There are nine possible values we might input, so each of our existing

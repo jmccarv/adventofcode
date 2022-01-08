@@ -82,10 +82,13 @@ const (
 
 `)
 
-	fmt.Fprintf(fh, "func getBlocks() (blocks []func(inp int, s,n []state)) {\n")
-	fmt.Fprintf(fh, "blocks = make([]func(inp int, s,n []state), 0, %d)\n", len(blocks))
+	fmt.Fprintln(fh, "var blocks = []func(inp int, s,n []state){")
 
-	sorts := fmt.Sprintf("func getPreSorts() (sorts []func(ns stateList)) {\n")
+	//fmt.Fprintf(fh, "func getBlocks() (blocks []func(inp int, s,n []state)) {\n")
+	//fmt.Fprintf(fh, "blocks = make([]func(inp int, s,n []state), 0, %d)\n", len(blocks))
+
+	//sorts := fmt.Sprintf("func getPreSorts() (sorts []func(ns stateList)) {\n")
+	sorts := ""
 
 	for _, block = range blocks {
 		// first instruction is an inp
@@ -95,14 +98,13 @@ const (
 
 		ra := block[0].args[0].reg
 
-		sorts += fmt.Sprintf(`sorts = append(sorts, func(ns stateList) {
+		sorts += fmt.Sprintf(`func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[%s] = 0
 				}
-		})%s`, ra, "\n")
+		},%s`, ra, "\n")
 
-		fmt.Fprintln(fh, "blocks = append(blocks, func(inp int, states, ns []state) {")
-
+		fmt.Fprintln(fh, "func(inp int, states, ns []state) {")
 		fmt.Fprintf(fh, `
 		for i := range states {
 			ns[i] = states[i]
@@ -140,10 +142,11 @@ const (
 				}%s`, ra, ob, ra, ra, "\n")
 			}
 		}
-		fmt.Fprintf(fh, "}\n})\n")
+		fmt.Fprintf(fh, "}\n},\n")
 	}
-	fmt.Fprintf(fh, "return\n}\n")
-	fmt.Fprintf(fh, "%sreturn\n}\n", sorts)
+	fmt.Fprintf(fh, "}\n")
+
+	fmt.Fprintf(fh, "var preSorts = []func(ns stateList){\n%s}", sorts)
 	return
 }
 

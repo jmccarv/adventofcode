@@ -80,8 +80,7 @@ func solve() {
 	ns := make([]stateList, 9)
 	ns[0] = append(ns[0], state{})
 
-	preSorts := getPreSorts()
-	for i, block := range getBlocks() {
+	for i, block := range blocks {
 		fmt.Println()
 		t1 := time.Now()
 		fmt.Println("input #", i+1, " -- ")

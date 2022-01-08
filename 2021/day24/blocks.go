@@ -12,9 +12,8 @@ const (
 )
 
 
-func getBlocks() (blocks []func(inp int, s,n []state)) {
-blocks = make([]func(inp int, s,n []state), 0, 14)
-blocks = append(blocks, func(inp int, states, ns []state) {
+var blocks = []func(inp int, s,n []state){
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -51,8 +50,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -89,8 +88,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -127,8 +126,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -165,8 +164,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -203,8 +202,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -241,8 +240,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -279,8 +278,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -317,8 +316,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -355,8 +354,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -393,8 +392,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -431,8 +430,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -469,8 +468,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -507,8 +506,8 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-blocks = append(blocks, func(inp int, states, ns []state) {
+},
+func(inp int, states, ns []state) {
 
 		for i := range states {
 			ns[i] = states[i]
@@ -545,79 +544,77 @@ for st := range ns {
     ns[st].regs[y] *= ns[st].regs[x]
     ns[st].regs[z] += ns[st].regs[y]
 }
-})
-return
+},
 }
-func getPreSorts() (sorts []func(ns stateList)) {
-sorts = append(sorts, func(ns stateList) {
+var preSorts = []func(ns stateList){
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-sorts = append(sorts, func(ns stateList) {
+		},
+func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-		})
-return
+		},
 }

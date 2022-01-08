@@ -2,8 +2,6 @@
 
 package main
 
-import "sort"
-
 type register int
 
 const (
@@ -550,90 +548,76 @@ for st := range ns {
 })
 return
 }
-func getSorts() (sorts []func(ns stateList)) {
+func getPreSorts() (sorts []func(ns stateList)) {
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 sorts = append(sorts, func(ns stateList) {
 				for i := range ns {
 					ns[i].regs[w] = 0
 				}
-				sort.Sort(ns)
 		})
 return
 }

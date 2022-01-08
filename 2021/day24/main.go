@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	//"runtime/pprof"
+	"sort"
 	"sync"
 	"time"
 )
@@ -79,7 +80,7 @@ func solve() {
 	ns := make([]stateList, 9)
 	ns[0] = append(ns[0], state{})
 
-	sorts := getSorts()
+	preSorts := getPreSorts()
 	for i, block := range getBlocks() {
 		fmt.Println()
 		t1 := time.Now()
@@ -91,7 +92,8 @@ func solve() {
 		for j := 0; j < 9; j++ {
 			go func(ns stateList) {
 				defer wg.Done()
-				sorts[i](ns)
+				preSorts[i](ns)
+				sort.Sort(ns)
 			}(ns[j])
 		}
 		wg.Wait()

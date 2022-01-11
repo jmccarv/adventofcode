@@ -10,7 +10,6 @@ import (
 	"os"
 	//"runtime/pprof"
 	"sort"
-	"sync"
 	"time"
 )
 
@@ -79,41 +78,47 @@ func solve() {
 	statesO := states
 	ns := make([]stateList, 9)
 	ns[0] = append(ns[0], state{})
+	sch := make(chan int)
+	sorted := make(chan int)
+
+	go func() {
+		for i := range ns {
+			sch <- i
+		}
+	}()
 
 	for i, block := range blocks {
 		fmt.Println()
 		t1 := time.Now()
 		fmt.Println("input #", i+1, " -- ")
 
-		fmt.Println("  sorting...")
-		var wg sync.WaitGroup
-		wg.Add(9)
+		fmt.Println("  processing / sorting...")
 		for j := 0; j < 9; j++ {
-			go func(ns stateList) {
-				defer wg.Done()
-				preSorts[i](ns)
-				sort.Sort(ns)
-			}(ns[j])
+			go func() {
+				idx := <-sch
+				preSorts[i](ns[idx])
+				sort.Sort(ns[idx])
+				sorted <- idx
+			}()
 		}
-		wg.Wait()
-		fmt.Println("  sort done in", time.Now().Sub(t1))
 
 		// Remove any duplicate states before splitting them
 		// We do this at the same time we merge all our ns slices into the final states slice
-		fmt.Println("      merging:", len(ns[0])*9)
-		t1 = time.Now()
 		next := state{regs: registers{99999999999999, 99999999999999, 99999999999999, 99999999999999}, min: 99999999999999}
 		cur := next
 
 		// Find our initial cur value -- the one with smallest registers set
-		for _, x := range ns {
+		for j := 0; j < 9; j++ {
+			x := ns[<-sorted]
 			if len(x) > 0 && x[0].regs.Less(cur.regs) {
 				cur = x[0]
 			}
 		}
+		fmt.Println("  process / sort done in", time.Now().Sub(t1))
 
-		// revert states back to an empty slice without having to reallocate anything
-		states = statesO[0:0]
+		fmt.Println("      merging:", len(ns[0])*9)
+		t1 = time.Now()
+		states = statesO[0:0] // revert states back to an empty slice without having to reallocate anything
 		done := false
 		x := 0
 		for !done {
@@ -150,24 +155,21 @@ func solve() {
 		// We now have a list of unique states to operate on
 		// There are nine possible values we might input, so each of our existing
 		// states split into 9 new states
-		fmt.Println("  processing commands...")
+		fmt.Println("  Starting processors...")
 		t1 = time.Now()
-		wg = sync.WaitGroup{}
-		wg.Add(9)
 		for j := 0; j < 9; j++ {
-			ns[j] = make([]state, len(states))
-			go func(j int, ns []state) {
-				defer wg.Done()
-				block(j, states, ns)
-			}(j+1, ns[j])
+			go func(blk func(inp int, states, ns []state), j int) {
+				ns[j] = make([]state, len(states))
+				blk(j+1, states, ns[j])
+				sch <- j
+			}(block, j)
 		}
-		wg.Wait()
-		fmt.Println("  processed in", time.Now().Sub(t1))
 	}
 
 	p1 := 0
 	p2 := 99999999999999
-	for _, sl := range ns {
+	for i := 0; i < 9; i++ {
+		sl := ns[<-sch]
 		for _, s := range sl {
 			if s.regs[z] == 0 {
 				fmt.Println(s)

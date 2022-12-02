@@ -2,6 +2,14 @@
 
 use strict;
 use warnings;
+use Data::Dumper;
+
+my @input;
+while (<>) {
+    chomp;
+    s/\s*//g;
+    push @input, $_;
+}
 
 my %scores = (
     AX => 3,
@@ -17,13 +25,33 @@ my %scores = (
     CZ => 3,
 );
 
-my $total = 0;
-while (<>) {
-    chomp;
-    s/\s*//g;
+part1(@input);
+part2(@input);
 
-    my $me = 3 - (ord('Z') - ord(substr($_, -1, 1)));
-    $total += $me + $scores{$_};
-    print "$_  $me + $scores{$_} = ".($me + $scores{$_})." :: $total\n";
+sub part1 {
+    #print Dumper(\@_);
+    my $total = 0;
+    for (@_) {
+        my $me = 3 - (ord('Z') - ord(substr($_, -1, 1)));
+        $total += $me + $scores{$_};
+    }
+    print $total."\n";
 }
-print $total."\n";
+
+sub part2 {
+    my %choice = (
+        AX => 'AZ',
+        AY => 'AX',
+        AZ => 'AY',
+
+        BX => 'BX',
+        BY => 'BY',
+        BZ => 'BZ',
+
+        CX => 'CY',
+        CY => 'CZ',
+        CZ => 'CX',
+    );
+
+    part1(map { $choice{$_} } @_);
+}

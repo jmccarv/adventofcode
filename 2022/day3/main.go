@@ -6,27 +6,39 @@ import (
 	"os"
 )
 
+// Elves carry rucksacks with two compartements
+// Each compartment holds one or more items
+// Each item has a type, denoted by a letter a-z or A-Z
+// Each type has a priority assigned to it (see below)
+// Items are split evenly between compartments
+
 type compartment [53]bool // compartment index is the type's priority
 type rucksack [2]compartment
 
-func priority(t byte) byte {
-	if t > 'Z' {
-		return t - byte('a') + 1
+// Priorities:
+//   a-z => 1-26
+//   A-Z => 27-52
+func priority(r rune) int {
+	if r >= 'a' {
+		return int(r) - 'a' + 1
 	}
-	return t - byte('A') + 26 + 1
+	return int(r) - 'A' + 26 + 1
 }
 
+// Each line of input represents the items in one Elf's rucksack
+// First half of the line are the items in the first compartment
 func main() {
 	var sacks []rucksack
 
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
-		line := s.Text()
 		var sack rucksack
-		for _, t := range []byte(line[:len(line)/2]) {
+
+		line := s.Text()
+		for _, t := range line[:len(line)/2] {
 			sack[0][priority(t)] = true
 		}
-		for _, t := range []byte(line[len(line)/2:]) {
+		for _, t := range line[len(line)/2:] {
 			sack[1][priority(t)] = true
 		}
 		sacks = append(sacks, sack)

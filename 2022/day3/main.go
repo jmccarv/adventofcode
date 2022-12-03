@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-type compartment [52]bool
+type compartment [52]bool // compartment index is the type's priority-1
 type rucksack [2]compartment
 
 func idx(t byte) byte {

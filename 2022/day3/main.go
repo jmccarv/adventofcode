@@ -51,8 +51,7 @@ func part2(sacks []rucksack) {
 	sum := 0
 	for gidx := 0; gidx < len(sacks); gidx += 3 {
 		var types [52]int
-		group := sacks[gidx : gidx+3]
-		for _, sack := range group {
+		for _, sack := range sacks[gidx : gidx+3] {
 			for i := 0; i < 52; i++ {
 				if sack[0][i] || sack[1][i] {
 					types[i]++

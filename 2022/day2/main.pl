@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use Data::Dumper;
 
 my @input;
 while (<>) {
@@ -39,7 +38,7 @@ sub part1 {
 }
 
 sub part2 {
-    my %choice = (
+    my %xform = (
         AX => 'AZ',
         AY => 'AX',
         AZ => 'AY',
@@ -53,5 +52,5 @@ sub part2 {
         CZ => 'CX',
     );
 
-    part1(map { $choice{$_} } @_);
+    part1(map { $xform{$_} } @_);
 }

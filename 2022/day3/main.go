@@ -13,16 +13,15 @@ import (
 // Each type has a priority assigned to it (see below)
 // Items are split evenly between compartments
 
-type rucksack [2]uint64
-
 // Each line of input represents the items in one Elf's rucksack
 // First half of the line are the items in the first compartment
 func main() {
-	var sacks []rucksack
-
 	s := bufio.NewScanner(os.Stdin)
+	nr, p1sum, p2sum := 0, 0, 0
+	var c uint64 = 0xffffffffffffffff
 	for s.Scan() {
-		var sack rucksack
+		var sack [2]uint64
+		nr++
 
 		line := s.Text()
 		for _, t := range line[:len(line)/2] {
@@ -31,15 +30,24 @@ func main() {
 		for _, t := range line[len(line)/2:] {
 			sack[1] |= 1 << (int(t) - 'A')
 		}
-		sacks = append(sacks, sack)
+		// part 1
+		p1sum += score(sack[0] & sack[1])
+
+		// part 2
+		c &= sack[0] | sack[1]
+		if nr%3 == 0 {
+			p2sum += score(c)
+			c = 0xffffffffffffffff
+		}
 	}
-	part1(sacks)
-	part2(sacks)
+	fmt.Println(p1sum)
+	fmt.Println(p2sum)
 }
 
 // Priorities:
-//   a-z => 1-26
-//   A-Z => 27-52
+//
+//	a-z => 1-26
+//	A-Z => 27-52
 func priority(r int) int {
 	if r >= 'a' {
 		return r - 'a' + 1
@@ -49,24 +57,4 @@ func priority(r int) int {
 
 func score(c uint64) int {
 	return priority('A' + bits.TrailingZeros64(c))
-}
-
-func part1(sacks []rucksack) {
-	sum := 0
-	for _, sack := range sacks {
-		sum += score(sack[0] & sack[1])
-	}
-	fmt.Println(sum)
-}
-
-func part2(sacks []rucksack) {
-	sum := 0
-	for gidx := 0; gidx < len(sacks); gidx += 3 {
-		var c uint64 = 0xffffffffffffffff
-		for _, sack := range sacks[gidx : gidx+3] {
-			c &= sack[0] | sack[1]
-		}
-		sum += score(c)
-	}
-	fmt.Println(sum)
 }

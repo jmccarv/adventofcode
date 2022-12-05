@@ -6,9 +6,8 @@ use warnings;
 # Read initial stack configuration
 my @stacks;
 while (<>) {
-    my $sidx = 0;
     last if /^\s*[0-9]/;
-    for (; length($_) > 1; $_ = substr($_, 4), ++$sidx) {
+    for (my $sidx = 0; length($_) > 1; $_ = substr($_, 4), ++$sidx) {
         unshift @{$stacks[$sidx]}, substr($_,1,1) if substr($_,1,1) ne ' ';
     }
 }

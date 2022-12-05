@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"regexp"
 )
 
 // We are offloading a ship, its cargo hold contains stacks of crates
@@ -56,14 +55,12 @@ func main() {
 	}
 
 	// Now read and execute the instructions to move crates
-	re := regexp.MustCompile(`move \d+ from \d+ to \d+`)
 	for s.Scan() {
-		if !re.MatchString(s.Text()) {
+		var nr, from, to int
+		n, _ := fmt.Sscanf(s.Text(), "move %d from %d to %d", &nr, &from, &to)
+		if n < 3 {
 			continue
 		}
-
-		var nr, from, to int
-		fmt.Sscanf(s.Text(), "move %d from %d to %d", &nr, &from, &to)
 
 		// part 1
 		for i := 0; i < nr; i++ {

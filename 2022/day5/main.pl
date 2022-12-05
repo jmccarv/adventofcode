@@ -19,10 +19,10 @@ my @p2stacks = map { [ @$_ ] } @stacks;
 # Read and execute instructions to move crates
 while (<>) {
     next unless /move (\d+) from (\d+) to (\d+)/;
-    my ($nr, $from, $to) = ($1, $2, $3);
+    my ($nr, $from, $to) = ($1, $2-1, $3-1);
 
-    push @{$stacks[$to-1]}, reverse splice (@{$stacks[$from-1]}, -$nr);
-    push @{$p2stacks[$to-1]}, splice(@{$p2stacks[$from-1]}, -$nr);
+    push @{$stacks[$to]}, reverse splice (@{$stacks[$from]}, -$nr);
+    push @{$p2stacks[$to]}, splice(@{$p2stacks[$from]}, -$nr);
 }
 
 print pop @$_ for @stacks;   print "\n";

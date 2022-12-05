@@ -42,31 +42,40 @@ func main() {
 		}
 		fmt.Println()
 	}
+
 	// Reverse the stacks because the ends of the arrays should be the top of the stacks
 	// And by using append() while reading, we were essentially pushing them in reverse order
+	// While we're at it, crate a copy of each stack to use for part 2
+	var p2stacks hold = make([]stack, 0, len(stacks))
 	for _, s := range stacks {
 		s.reverse()
+
+		var t stack = make([]byte, len(s))
+		copy(t, s)
+		p2stacks = append(p2stacks, t)
 	}
 
-	// Now read the instructions for how to move crates
+	// Now read and execute the instructions to move crates
 	re := regexp.MustCompile(`move \d+ from \d+ to \d+`)
 	for s.Scan() {
-		var nr, from, to int
 		if !re.MatchString(s.Text()) {
 			continue
 		}
-		n, _ := fmt.Sscanf(s.Text(), "move %d from %d to %d", &nr, &from, &to)
-		if n > 0 {
-			fmt.Printf("Move %d from %d to %d\n", nr, from, to)
-			for i := 0; i < nr; i++ {
-				stacks[to-1].push(stacks[from-1].pop())
-			}
+
+		var nr, from, to int
+		fmt.Sscanf(s.Text(), "move %d from %d to %d", &nr, &from, &to)
+
+		// part 1
+		for i := 0; i < nr; i++ {
+			stacks[to-1].push(stacks[from-1].pop(1))
 		}
+
+		// part2
+		p2stacks[to-1].push(p2stacks[from-1].pop(nr))
 	}
-	for _, s := range stacks {
-		fmt.Printf("%c", s[len(s)-1])
-	}
-	fmt.Println()
+
+	stacks.dispTop()
+	p2stacks.dispTop()
 }
 
 func (s stack) reverse() {
@@ -75,16 +84,25 @@ func (s stack) reverse() {
 	}
 }
 
-func (s *stack) pop() (b byte) {
-	if len(*s) == 0 {
-		return
-	}
-
-	b = (*s)[len(*s)-1]
-	*s = (*s)[:len(*s)-1]
+func (s *stack) pop(nr int) (b []byte) {
+	b = (*s)[len(*s)-nr:]
+	*s = (*s)[:len(*s)-nr]
 	return b
 }
 
-func (s *stack) push(b byte) {
-	*s = append(*s, b)
+func (s *stack) push(b []byte) {
+	*s = append(*s, b...)
+}
+
+func (h hold) dispTop() {
+	for _, s := range h {
+		fmt.Printf("%c", s[len(s)-1])
+	}
+	fmt.Println()
+}
+
+func (h hold) dump() {
+	for _, s := range h {
+		fmt.Println(string(s))
+	}
 }

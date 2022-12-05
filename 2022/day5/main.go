@@ -42,12 +42,10 @@ func main() {
 		}
 		fmt.Println()
 	}
-	fmt.Println(len(stacks), "Stacks")
 	// Reverse the stacks because the ends of the arrays should be the top of the stacks
+	// And by using append() while reading, we were essentially pushing them in reverse order
 	for _, s := range stacks {
-		for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
-			s[i], s[j] = s[j], s[i]
-		}
+		s.reverse()
 	}
 
 	// Now read the instructions for how to move crates
@@ -69,6 +67,12 @@ func main() {
 		fmt.Printf("%c", s[len(s)-1])
 	}
 	fmt.Println()
+}
+
+func (s stack) reverse() {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
 }
 
 func (s *stack) pop() (b byte) {

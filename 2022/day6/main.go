@@ -8,25 +8,24 @@ import (
 
 func main() {
 	s := bufio.NewScanner(os.Stdin)
-
-	// Read the starting crate stack configuration
 	for s.Scan() {
-		line := s.Text()
-		nr := 0
-		for i := 3; i < len(line); i++ {
-			var seen [256]bool
-			nr = i
-			for j := i - 3; j <= i; j++ {
-				if seen[line[j]] {
-					nr = 0
-					break
-				}
-				seen[line[j]] = true
-			}
-			if nr > 0 {
+		fmt.Printf("%d %d\n", check(s.Text(), 4), check(s.Text(), 14))
+	}
+}
+
+func check(line string, nrUniq int) int {
+	nrUniq--
+	nr := 0
+	for i := nrUniq; i < len(line) && nr == 0; i++ {
+		var seen [123]bool // ASCII 'z' == 122
+		nr = i
+		for j := i - nrUniq; j <= i; j++ {
+			if seen[line[j]] {
+				nr = 0
 				break
 			}
+			seen[line[j]] = true
 		}
-		fmt.Println(nr + 1)
 	}
+	return nr + 1
 }

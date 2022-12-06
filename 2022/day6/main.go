@@ -9,7 +9,7 @@ import (
 func main() {
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
-		fmt.Printf("%d %d\n", check(s.Text(), 4), check(s.Text(), 14))
+		fmt.Println(check(s.Text(), 4), check(s.Text(), 14))
 	}
 }
 

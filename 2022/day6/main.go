@@ -28,7 +28,6 @@ func check(line string, nrUniq int) int {
 			seen[line[j]] = true
 		}
 	}
-	t1 := time.Now()
-	fmt.Println(nrUniq, t1.Sub(t0))
+	fmt.Println(nrUniq, time.Now().Sub(t0))
 	return nr + 1
 }

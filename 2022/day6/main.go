@@ -28,6 +28,6 @@ func check(line string, nrUniq, startOfs int) int {
 			seen[line[j]] = true
 		}
 	}
-	fmt.Println(nrUniq, nr+1, time.Now().Sub(t0))
+	fmt.Printf("%2d %4d %v\n", nrUniq, nr+1, time.Now().Sub(t0))
 	return nr + 1
 }

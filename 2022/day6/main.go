@@ -10,7 +10,7 @@ import (
 func main() {
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
-		check(s.Text(), 14, check(s.Text(), 4, 1)-4)
+		check(s.Text(), 14, check(s.Text(), 4, 0)-4)
 	}
 }
 

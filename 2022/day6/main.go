@@ -8,10 +8,12 @@ import (
 )
 
 func main() {
+	t0 := time.Now()
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
 		check(s.Text(), 14, check(s.Text(), 4, 0)-4)
 	}
+	fmt.Println("Total time ", time.Now().Sub(t0))
 }
 
 func check(line string, nrUniq, startOfs int) int {

@@ -10,14 +10,14 @@ import (
 func main() {
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
-		fmt.Println(check(s.Text(), 4), check(s.Text(), 14))
+		check(s.Text(), 14, check(s.Text(), 4, 1)-4)
 	}
 }
 
-func check(line string, nrUniq int) int {
+func check(line string, nrUniq, startChar int) int {
 	nr, j := 0, 0
 	t0 := time.Now()
-	for i := nrUniq - 1; i < len(line) && nr == 0; i = j + nrUniq {
+	for i := (startChar - 1) + nrUniq - 1; i < len(line) && nr == 0; i = j + nrUniq {
 		var seen [123]bool // ASCII 'z' == 122
 		nr = i
 		for j = i; j >= i-(nrUniq-1); j-- {
@@ -28,6 +28,6 @@ func check(line string, nrUniq int) int {
 			seen[line[j]] = true
 		}
 	}
-	fmt.Println(nrUniq, time.Now().Sub(t0))
+	fmt.Println(nrUniq, nr+1, time.Now().Sub(t0))
 	return nr + 1
 }

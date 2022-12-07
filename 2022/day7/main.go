@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 )
 
 type entType int
@@ -49,7 +50,7 @@ func main() {
 
 		} else if nr, _ := fmt.Sscanf(s.Text(), "dir %s", &dname); nr == 1 {
 			if _, ok := cwd.ents[dname]; !ok {
-				cwd.ents[dname] = &ent{typ: E_DIR, name: dname + "/", parent: cwd, ents: make(map[string]*ent)}
+				cwd.ents[dname] = &ent{typ: E_DIR, name: dname, parent: cwd, ents: make(map[string]*ent)}
 			}
 
 		} else if nr, _ := fmt.Sscanf(s.Text(), "%d %s", &size, &fn); nr == 2 {
@@ -58,7 +59,7 @@ func main() {
 	}
 
 	root.calc()
-	//root.disp("", 0)
+	root.disp(0)
 	part1()
 	part2()
 }
@@ -83,7 +84,7 @@ func part2() {
 			min = e
 		}
 	})
-	fmt.Printf("%s %d\n", min.name, min.size)
+	fmt.Printf("%d\n", min.size)
 }
 
 func (e *ent) visit(f func(*ent)) {
@@ -101,12 +102,20 @@ func (e *ent) calc() {
 	})
 }
 
-func (e *ent) disp(parent string, lvl int) {
-	fmt.Printf("%*s%s%s %d\n", lvl, "", parent, e.name, e.size)
+func (e *ent) disp(lvl int) {
+	fmt.Printf("%*s- %s (dir, size=%d)\n", lvl, "", e.name, e.size)
 
-	for _, sub := range e.ents {
-		if sub.typ == E_DIR {
-			sub.disp(parent+e.name, lvl+2)
+	var names []string
+	for n, _ := range e.ents {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+
+	for _, n := range names {
+		if e.ents[n].typ == E_DIR {
+			e.ents[n].disp(lvl + 2)
+		} else {
+			fmt.Printf("%*s- %s (file, size=%d)\n", lvl+2, "", n, e.ents[n].size)
 		}
 	}
 }

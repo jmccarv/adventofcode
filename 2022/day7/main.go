@@ -30,31 +30,29 @@ func main() {
 
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
-		var fn, dname string
+		var name string
 		var size int
 
-		if nr, _ := fmt.Sscanf(s.Text(), "$ cd %s", &dname); nr == 1 {
-			switch dname {
+		if nr, _ := fmt.Sscanf(s.Text(), "$ cd %s", &name); nr == 1 {
+			switch name {
 			case "/":
 				cwd = root
-				continue
 			case "..":
 				cwd = cwd.parent
-				continue
+			default:
+				var ok bool
+				if cwd, ok = cwd.ents[name]; !ok {
+					panic(fmt.Sprintf("Directory does not exist: %s", name))
+				}
 			}
 
-			var ok bool
-			if cwd, ok = cwd.ents[dname]; !ok {
-				panic(fmt.Sprintf("Directory does not exist: %s", dname))
+		} else if nr, _ := fmt.Sscanf(s.Text(), "dir %s", &name); nr == 1 {
+			if _, ok := cwd.ents[name]; !ok {
+				cwd.ents[name] = &ent{typ: E_DIR, name: name, parent: cwd, ents: make(map[string]*ent)}
 			}
 
-		} else if nr, _ := fmt.Sscanf(s.Text(), "dir %s", &dname); nr == 1 {
-			if _, ok := cwd.ents[dname]; !ok {
-				cwd.ents[dname] = &ent{typ: E_DIR, name: dname, parent: cwd, ents: make(map[string]*ent)}
-			}
-
-		} else if nr, _ := fmt.Sscanf(s.Text(), "%d %s", &size, &fn); nr == 2 {
-			cwd.ents[fn] = &ent{typ: E_FILE, name: fn, size: size, parent: cwd}
+		} else if nr, _ := fmt.Sscanf(s.Text(), "%d %s", &size, &name); nr == 2 {
+			cwd.ents[name] = &ent{typ: E_FILE, name: name, size: size, parent: cwd}
 		}
 	}
 

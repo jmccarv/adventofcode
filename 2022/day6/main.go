@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
@@ -15,11 +16,12 @@ func main() {
 
 func check(line string, nrUniq int) int {
 	nrUniq--
-	nr := 0
-	for i := nrUniq; i < len(line) && nr == 0; i++ {
+	nr, j := 0, 0
+	t0 := time.Now()
+	for i := nrUniq; i < len(line) && nr == 0; i = j + 1 + nrUniq {
 		var seen [123]bool // ASCII 'z' == 122
 		nr = i
-		for j := i - nrUniq; j <= i; j++ {
+		for j = i; j >= i-nrUniq; j-- {
 			if seen[line[j]] {
 				nr = 0
 				break
@@ -27,5 +29,7 @@ func check(line string, nrUniq int) int {
 			seen[line[j]] = true
 		}
 	}
+	t1 := time.Now()
+	fmt.Println(nrUniq+1, t1.Sub(t0))
 	return nr + 1
 }

@@ -16,151 +16,115 @@ const (
 type loc struct {
 	r, c int
 }
-type dir struct {
+
+type direction struct {
 	r, c int // intended to be used as a direction, i.e. -1 <= val <= 1
 }
-type slope struct {
-	pn   int // positive/negative
-	from loc // location of tree this slope ends at
-}
+
 type tree struct {
 	loc
-	h   int //height
-	vis bool
-	//s [4]slope
+	h   int      //height
+	vis [4]*tree // tree furthest away that can be seen from this tree
 }
 
 type grove struct {
-	t    [][]tree
+	t    [][]*tree
 	size int
 }
 
 func main() {
 	s := bufio.NewScanner(os.Stdin)
-	var trees [][]tree
+	var trees [][]*tree
 
 	r := 0
 	for s.Scan() {
-		row := make([]tree, len(s.Text()))
+		row := make([]*tree, len(s.Text()))
 		for c, h := range []byte(s.Text()) {
-			row[c] = tree{loc: loc{r: r, c: c}, h: int(h - '0')}
+			row[c] = &tree{loc: loc{r: r, c: c}, h: int(h - '0')}
+			row[c].vis[U], row[c].vis[D], row[c].vis[L], row[c].vis[R] = row[c], row[c], row[c], row[c]
 		}
 		trees = append(trees, row)
 		r++
 	}
 	g := grove{t: trees, size: len(trees[0])}
-	g.dump()
+
+	for _, t := range g.innerTrees() {
+		t.calcVisFrom(g)
+	}
+
+	//g.dump()
 	part1(g)
 }
 
 func part1(g grove) {
-	count := func(g grove) {
-		for c := 1; c < g.size-1; c++ {
-			h := g.t[0][c]
-			fmt.Println("h ", h)
-
-			for r := 1; r < g.size-1; r++ {
-				fmt.Println(h.h, g.t[r][c])
-				if g.t[r][c].h > h.h {
-					g.t[r][c].vis = true
-					h = g.t[r][c]
-				}
-			}
-
-			h = g.t[g.size-1][c]
-			fmt.Println("h ", h)
-			for r := g.size - 1; r > 0; r-- {
-				fmt.Println(h.h, g.t[r][c])
-				if g.t[r][c].h > h.h {
-					g.t[r][c].vis = true
-					h = g.t[r][c]
-				}
-			}
-		}
-
-		fmt.Println()
-		for r := 1; r < g.size-1; r++ {
-			h := g.t[r][0]
-			fmt.Println("h ", h)
-
-			for c := 1; c < g.size-1; c++ {
-				fmt.Println(h.h, g.t[r][c])
-				if g.t[r][c].h > h.h {
-					g.t[r][c].vis = true
-					h = g.t[r][c]
-				}
-			}
-
-			h = g.t[r][g.size-1]
-			fmt.Println("h ", h)
-			for c := g.size - 1; c > 0; c-- {
-				fmt.Println(h.h, g.t[r][c])
-				if g.t[r][c].h > h.h {
-					g.t[r][c].vis = true
-					h = g.t[r][c]
-				}
-			}
-		}
+	check := func(t *tree, didx int) bool {
+		return g.isEdge(t.vis[didx]) && t.vis[didx].h < t.h
 	}
-
-	count(g)
 	vis := 0
-	for r := 1; r < g.size-1; r++ {
-		for c := 1; c < g.size-1; c++ {
-			if g.t[r][c].vis {
-				vis++
-			}
+	for _, t := range g.innerTrees() {
+		if check(t, U) || check(t, D) || check(t, L) || check(t, R) {
+			vis++
 		}
 	}
 	fmt.Println(vis + (g.size-1)*4)
 }
 
-/*
-func (g grove) visibileFrom(to tree, from loc) bool {
-	dir := to.dirFrom(from)
-
-	for ; !to.sameLoc(from); from = from.add(dir) {
-		fmt.Println("from ", from, "  to ", to)
+func (t *tree) calcVisFrom(g grove) {
+	calc := func(didx int) {
+		var dir direction
+		switch didx {
+		case U:
+			dir = direction{-1, 0}
+		case D:
+			dir = direction{1, 0}
+		case L:
+			dir = direction{0, -1}
+		case R:
+			dir = direction{0, 1}
+		}
+		x := g.move(t, dir)
+		for ; ; x = g.move(x, dir) {
+			if g.isEdge(x) || x.h >= t.h {
+				break
+			}
+		}
+		t.vis[didx] = x
 	}
 
-	return true
+	calc(U)
+	calc(D)
+	calc(L)
+	calc(R)
 }
 
-func (a loc) dirFrom(b loc) loc {
-	var dir loc
-	if a.r < b.r {
-		dir.r = -1
-	} else if a.r > b.r {
-		dir.r = 1
+func (g grove) isEdge(t *tree) bool {
+	return t.r <= 0 || t.c <= 0 || t.r >= g.size-1 || t.c >= g.size-1
+}
+
+func (g grove) move(from *tree, d direction) *tree {
+	return g.t[from.r+d.r][from.c+d.c]
+}
+
+func (g grove) innerTrees() []*tree {
+	var ret []*tree
+	for r := 1; r < g.size-1; r++ {
+		for c := 1; c < g.size-1; c++ {
+			ret = append(ret, g.t[r][c])
+		}
 	}
-
-	if a.c < b.c {
-		dir.c = -1
-	} else if a.c > b.c {
-		dir.c = 1
-	}
-	return dir
+	return ret
 }
-
-func (a loc) sameLoc(b loc) bool {
-	if a.r == b.r && a.c == b.c {
-		return true
-	}
-	return false
-}
-
-func (a loc) add(b loc) loc {
-	a.r += b.r
-	a.c += b.c
-	return a
-}
-*/
 
 func (g grove) dump() {
 	for _, row := range g.t {
 		for _, t := range row {
-			fmt.Printf("%d", t.h)
+			fmt.Printf("%v ", t)
 		}
 		fmt.Println()
 	}
+}
+
+func (t *tree) String() string {
+	ret := fmt.Sprintf("[%2d,%2d,%d U:%2d D:%2d L:%2d R:%2d]", t.r, t.c, t.h, t.vis[U].r, t.vis[D].r, t.vis[L].c, t.vis[R].c)
+	return ret
 }

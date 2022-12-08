@@ -76,14 +76,10 @@ func part2(g grove) {
 	dist := func(t *tree, didx int) int {
 		v := t.vis[didx]
 		switch didx {
-		case U:
-			return t.r - v.r
-		case D:
-			return v.r - t.r
-		case L:
-			return t.c - v.c
-		case R:
-			return v.c - t.c
+		case U, D:
+			return abs(t.r - v.r)
+		case L, R:
+			return abs(t.c - v.c)
 		}
 		return 0
 	}
@@ -155,4 +151,11 @@ func (g grove) dump() {
 func (t *tree) String() string {
 	ret := fmt.Sprintf("[%2d,%2d,%d U:%2d D:%2d L:%2d R:%2d]", t.r, t.c, t.h, t.vis[U].r, t.vis[D].r, t.vis[L].c, t.vis[R].c)
 	return ret
+}
+
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
 }

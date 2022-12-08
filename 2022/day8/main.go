@@ -41,6 +41,11 @@ func main() {
 		row := make([]*tree, len(s.Text()))
 		for c, h := range []byte(s.Text()) {
 			row[c] = &tree{loc: loc{r: r, c: c}, h: int(h - '0')}
+
+			// Technically I only need to initialize the edges but I'm lazy.
+			// Initialize them to themselves just so they're not nil -- the inner
+			// ones get overwritten later in calcVisFrom() but the edges would remain
+			// nil if not for this assignment.
 			row[c].vis[U], row[c].vis[D], row[c].vis[L], row[c].vis[R] = row[c], row[c], row[c], row[c]
 		}
 		trees = append(trees, row)

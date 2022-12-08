@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 )
 
 const (
@@ -33,6 +34,7 @@ type grove struct {
 }
 
 func main() {
+	t0 := time.Now()
 	s := bufio.NewScanner(os.Stdin)
 	var trees [][]*tree
 
@@ -53,16 +55,20 @@ func main() {
 	}
 	g := grove{t: trees, size: len(trees[0])}
 
+	t1 := time.Now()
 	for _, t := range g.innerTrees() {
 		t.calcVisFrom(g)
 	}
+	fmt.Println("calcVis() ", time.Now().Sub(t1))
 
 	//g.dump()
 	part1(g)
 	part2(g)
+	fmt.Println("Total time ", time.Now().Sub(t0))
 }
 
 func part1(g grove) {
+	t0 := time.Now()
 	check := func(t *tree, didx int) bool {
 		return g.isEdge(t.vis[didx]) && t.vis[didx].h < t.h
 	}
@@ -72,10 +78,11 @@ func part1(g grove) {
 			vis++
 		}
 	}
-	fmt.Println(vis + (g.size-1)*4)
+	fmt.Println(vis+(g.size-1)*4, time.Now().Sub(t0))
 }
 
 func part2(g grove) {
+	t0 := time.Now()
 	res := 0
 
 	dist := func(t *tree, didx int) int {
@@ -95,7 +102,7 @@ func part2(g grove) {
 			res = score
 		}
 	}
-	fmt.Println(res)
+	fmt.Println(res, time.Now().Sub(t0))
 }
 
 func (t *tree) calcVisFrom(g grove) {

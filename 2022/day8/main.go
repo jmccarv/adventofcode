@@ -54,6 +54,7 @@ func main() {
 
 	//g.dump()
 	part1(g)
+	part2(g)
 }
 
 func part1(g grove) {
@@ -67,6 +68,33 @@ func part1(g grove) {
 		}
 	}
 	fmt.Println(vis + (g.size-1)*4)
+}
+
+func part2(g grove) {
+	res := 0
+
+	dist := func(t *tree, didx int) int {
+		v := t.vis[didx]
+		switch didx {
+		case U:
+			return t.r - v.r
+		case D:
+			return v.r - t.r
+		case L:
+			return t.c - v.c
+		case R:
+			return v.c - t.c
+		}
+		return 0
+	}
+
+	for _, t := range g.innerTrees() {
+		score := dist(t, U) * dist(t, D) * dist(t, L) * dist(t, R)
+		if score > res {
+			res = score
+		}
+	}
+	fmt.Println(res)
 }
 
 func (t *tree) calcVisFrom(g grove) {

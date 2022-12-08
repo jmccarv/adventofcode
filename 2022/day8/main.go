@@ -94,18 +94,7 @@ func part2(g grove) {
 }
 
 func (t *tree) calcVisFrom(g grove) {
-	calc := func(didx int) {
-		var dir direction
-		switch didx {
-		case U:
-			dir = direction{-1, 0}
-		case D:
-			dir = direction{1, 0}
-		case L:
-			dir = direction{0, -1}
-		case R:
-			dir = direction{0, 1}
-		}
+	calc := func(didx int, dir direction) {
 		x := g.move(t, dir)
 		for ; ; x = g.move(x, dir) {
 			if g.isEdge(x) || x.h >= t.h {
@@ -115,10 +104,10 @@ func (t *tree) calcVisFrom(g grove) {
 		t.vis[didx] = x
 	}
 
-	calc(U)
-	calc(D)
-	calc(L)
-	calc(R)
+	calc(U, direction{-1, 0})
+	calc(D, direction{1, 0})
+	calc(L, direction{0, -1})
+	calc(R, direction{0, 1})
 }
 
 func (g grove) isEdge(t *tree) bool {

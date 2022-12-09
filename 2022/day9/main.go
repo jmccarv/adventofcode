@@ -16,16 +16,18 @@ type knot struct {
 	visited map[point]struct{}
 }
 
-var directions = map[int]point{
-	'U': point{0, -1},
-	'D': point{0, 1},
-	'L': point{-1, 0},
-	'R': point{1, 0},
-}
-
 type rope [10]knot
 
-var knots rope
+var (
+	directions = map[int]point{
+		'U': point{0, -1},
+		'D': point{0, 1},
+		'L': point{-1, 0},
+		'R': point{1, 0},
+	}
+
+	knots rope
+)
 
 func main() {
 	t0 := time.Now()

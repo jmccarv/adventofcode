@@ -12,8 +12,7 @@ type point struct {
 }
 
 type knot struct {
-	point         // where this knot currently sits
-	ofs     point // offset from the 'head' knot
+	point
 	visited map[point]struct{}
 }
 
@@ -24,10 +23,15 @@ var directions = map[int]point{
 	'R': point{1, 0},
 }
 
+type rope [10]knot
+
+var knots rope
+
 func main() {
 	t0 := time.Now()
 
-	tail := knot{visited: map[point]struct{}{point{0, 0}: struct{}{}}}
+	knots[1].visited = map[point]struct{}{point{0, 0}: struct{}{}}
+	knots[9].visited = map[point]struct{}{point{0, 0}: struct{}{}}
 
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
@@ -37,48 +41,72 @@ func main() {
 		if err != nil || nr != 2 {
 			panic("Invalid input!")
 		}
-		tail.move(directions[udrl], amt)
+
+		fmt.Println(s.Text())
+		dir := directions[udrl]
+
+		// Now successive knots follow the one before it so that they
+		// always neighboring the preceding knot.
+		for z := 0; z < amt; z++ {
+			// knots[0] is our 'Head' knot
+			knots[0].point.add(dir)
+
+			for i := 1; i < len(knots); i++ {
+				k := &knots[i]
+				if !k.neighbors(knots[i-1]) {
+					k.follow(knots[i-1])
+				}
+			}
+		}
 	}
 
-	fmt.Println(len(tail.visited))
+	fmt.Println(len(knots[1].visited))
+	fmt.Println(len(knots[9].visited))
 	fmt.Println("Total time ", time.Now().Sub(t0))
 }
 
-// move head and update tail to follow head
-// dir is the direction head moves and amt is number of spaces it moves in that direction
-func (k *knot) move(dir point, amt int) {
-	// Move the 'head' knot by adjusting our offset
-	vec := point{x: dir.x * amt, y: dir.y * amt}
-	k.ofs.add(vec)
+// Knot k follows knot h by a single step, abiding by the rules of the game
+func (k *knot) follow(h knot) {
+	ofs := sub(h.point, k.point)
+	dir := point{x: sign(ofs.x), y: sign(ofs.y)}
 
-	// Now the tail moves so it is always neighboring head
-	// For the first step, tail may move in both axes
-	// After the first move, it may only move in the axis that head moved in
-	moveDir := point{x: sign(k.ofs.x), y: sign(k.ofs.y)}
-	for !k.isNeighbor() {
-		k.add(moveDir)
-		k.ofs.sub(moveDir)
+	k.add(dir)
+	if k.visited != nil {
 		k.visited[k.point] = struct{}{}
-		moveDir = point{x: moveDir.x * abs(dir.x), y: moveDir.y * abs(dir.y)}
 	}
 }
 
 func (p *point) add(q point) {
-	p.x += q.x
-	p.y += q.y
+	*p = add(*p, q)
 }
 
 func (p *point) sub(q point) {
-	p.x -= q.x
-	p.y -= q.y
+	*p = sub(*p, q)
 }
 
-func (k knot) isNeighbor() bool {
-	return abs(k.ofs.x) <= 1 && abs(k.ofs.y) <= 1
+func (p point) min(q point) point {
+	return point{x: min(p.x, q.x), y: min(p.y, q.y)}
+}
+
+func (p point) max(q point) point {
+	return point{x: max(p.x, q.x), y: max(p.y, q.y)}
+}
+
+func (k knot) neighbors(h knot) bool {
+	ofs := sub(h.point, k.point)
+	return abs(ofs.x) <= 1 && abs(ofs.y) <= 1
 }
 
 func (k knot) String() string {
-	return fmt.Sprintf("%v %v", k.point, k.ofs)
+	return fmt.Sprintf("%v", k.point)
+}
+
+func add(p, q point) point {
+	return point{x: p.x + q.x, y: p.y + q.y}
+}
+
+func sub(p, q point) point {
+	return point{x: p.x - q.x, y: p.y - q.y}
 }
 
 func abs(a int) int {
@@ -95,4 +123,53 @@ func sign(a int) int {
 		return -1
 	}
 	return 1
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+func (r rope) dump() {
+	// Get the bouding box first
+	var tl, br point
+	for _, k := range r {
+		tl = tl.min(k.point)
+		br = br.max(k.point)
+	}
+	// Total size of our grid
+	size := add(sub(br, tl), point{1, 1})
+
+	// ofs will be what we translate all our x and y values by to get their location on our grid
+	ofs := sub(point{}, tl)
+
+	grid := make([][]byte, size.y)
+	for r := 0; r < size.y; r++ {
+		grid[r] = make([]byte, size.x)
+		for c := 0; c < size.x; c++ {
+			grid[r][c] = '.'
+		}
+	}
+
+	grid[ofs.y][ofs.x] = 's' // starting point
+	for i := len(r) - 1; i >= 0; i-- {
+		// translate this one to it's location
+		loc := add(ofs, r[i].point)
+		grid[loc.y][loc.x] = byte('0' + i)
+	}
+
+	// And now we can print it
+	for _, r := range grid {
+		fmt.Println(string(r))
+	}
+	fmt.Println("p1", len(r[1].visited), "  p2", len(r[len(r)-1].visited))
+	fmt.Println()
 }

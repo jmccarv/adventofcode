@@ -52,10 +52,7 @@ func main() {
 			// Now successive knots follow the one before it so that they
 			// are always neighboring the preceding knot.
 			for i := 1; i < len(knots); i++ {
-				k := &knots[i]
-				if !k.neighbors(knots[i-1]) {
-					k.follow(knots[i-1])
-				}
+				knots[i].follow(knots[i-1])
 			}
 		}
 	}
@@ -67,9 +64,12 @@ func main() {
 
 // Knot k follows knot h by a single step, abiding by the rules of the game
 func (k *knot) follow(h knot) {
+	if k.neighbors(h) {
+		// No need to move if we're already neighbors
+		return
+	}
 	ofs := sub(h.point, k.point)
 	dir := point{x: sign(ofs.x), y: sign(ofs.y)}
-
 	k.add(dir)
 	if k.visited != nil {
 		k.visited[k.point] = struct{}{}

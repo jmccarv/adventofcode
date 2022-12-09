@@ -31,7 +31,7 @@ func main() {
 	t0 := time.Now()
 
 	knots[1].visited = map[point]struct{}{point{0, 0}: struct{}{}}
-	knots[9].visited = map[point]struct{}{point{0, 0}: struct{}{}}
+	knots[len(knots)-1].visited = map[point]struct{}{point{0, 0}: struct{}{}}
 
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
@@ -42,7 +42,7 @@ func main() {
 			panic("Invalid input!")
 		}
 
-		fmt.Println(s.Text())
+		//fmt.Println(s.Text())
 		dir := directions[udrl]
 
 		// Now successive knots follow the one before it so that they
@@ -61,7 +61,7 @@ func main() {
 	}
 
 	fmt.Println(len(knots[1].visited))
-	fmt.Println(len(knots[9].visited))
+	fmt.Println(len(knots[len(knots)-1].visited))
 	fmt.Println("Total time ", time.Now().Sub(t0))
 }
 

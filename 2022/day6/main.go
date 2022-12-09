@@ -17,7 +17,7 @@ func main() {
 }
 
 func check(line string, nrUniq, startOfs int) int {
-	nr, j := 0, 0
+	var nr, j int
 	t0 := time.Now()
 	for i := startOfs + nrUniq - 1; i < len(line) && nr == 0; i = j + nrUniq {
 		var seen [123]bool // ASCII 'z' == 122

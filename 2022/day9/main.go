@@ -73,7 +73,7 @@ func (k *knot) follow(h knot) {
 		return
 	}
 
-	ofs := h.point.sub(k.point)
+	ofs := h.sub(k.point)
 	dir := point{x: sign(ofs.x), y: sign(ofs.y)}
 	k.point = k.add(dir)
 
@@ -99,7 +99,7 @@ func (p point) max(q point) point {
 }
 
 func (k knot) neighbors(h knot) bool {
-	ofs := h.point.sub(k.point)
+	ofs := h.sub(k.point)
 	return abs(ofs.x) <= 1 && abs(ofs.y) <= 1
 }
 

@@ -45,12 +45,12 @@ func main() {
 		//fmt.Println(s.Text())
 		dir := directions[udrl]
 
-		// Now successive knots follow the one before it so that they
-		// always neighboring the preceding knot.
 		for z := 0; z < amt; z++ {
 			// knots[0] is our 'Head' knot
 			knots[0].point.add(dir)
 
+			// Now successive knots follow the one before it so that they
+			// are always neighboring the preceding knot.
 			for i := 1; i < len(knots); i++ {
 				k := &knots[i]
 				if !k.neighbors(knots[i-1]) {

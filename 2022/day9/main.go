@@ -140,6 +140,7 @@ func max(a, b int) int {
 	}
 	return b
 }
+
 func (r rope) dump() {
 	// Get the bouding box first
 	var tl, br point

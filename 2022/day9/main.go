@@ -49,7 +49,7 @@ func main() {
 
 		for z := 0; z < amt; z++ {
 			// knots[0] is our 'Head' knot
-			knots[0].point.add(dir)
+			knots[0].point = knots[0].add(dir)
 
 			// Now successive knots follow the one before it so that they
 			// are always neighboring the preceding knot.
@@ -71,21 +71,21 @@ func (k *knot) follow(h knot) {
 		return
 	}
 
-	ofs := sub(h.point, k.point)
+	ofs := h.point.sub(k.point)
 	dir := point{x: sign(ofs.x), y: sign(ofs.y)}
-	k.add(dir)
+	k.point = k.add(dir)
 
 	if k.visited != nil {
 		k.visited[k.point] = struct{}{}
 	}
 }
 
-func (p *point) add(q point) {
-	*p = add(*p, q)
+func (p point) add(q point) point {
+	return point{x: p.x + q.x, y: p.y + q.y}
 }
 
-func (p *point) sub(q point) {
-	*p = sub(*p, q)
+func (p point) sub(q point) point {
+	return point{x: p.x - q.x, y: p.y - q.y}
 }
 
 func (p point) min(q point) point {
@@ -97,20 +97,12 @@ func (p point) max(q point) point {
 }
 
 func (k knot) neighbors(h knot) bool {
-	ofs := sub(h.point, k.point)
+	ofs := h.point.sub(k.point)
 	return abs(ofs.x) <= 1 && abs(ofs.y) <= 1
 }
 
 func (k knot) String() string {
 	return fmt.Sprintf("%v", k.point)
-}
-
-func add(p, q point) point {
-	return point{x: p.x + q.x, y: p.y + q.y}
-}
-
-func sub(p, q point) point {
-	return point{x: p.x - q.x, y: p.y - q.y}
 }
 
 func abs(a int) int {
@@ -151,10 +143,10 @@ func (r rope) dump() {
 		br = br.max(k.point)
 	}
 	// Total size of our grid
-	size := add(sub(br, tl), point{1, 1})
+	size := br.sub(tl).add(point{1, 1})
 
 	// ofs will be what we translate all our x and y values by to get their location on our grid
-	ofs := sub(point{}, tl)
+	ofs := point{}.sub(tl)
 
 	grid := make([][]byte, size.y)
 	for r := 0; r < size.y; r++ {
@@ -167,7 +159,7 @@ func (r rope) dump() {
 	grid[ofs.y][ofs.x] = 's' // starting point
 	for i := len(r) - 1; i >= 0; i-- {
 		// translate this one to it's location
-		loc := add(ofs, r[i].point)
+		loc := ofs.add(r[i].point)
 		grid[loc.y][loc.x] = byte('0' + i)
 	}
 

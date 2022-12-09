@@ -30,13 +30,15 @@ var knots rope
 func main() {
 	t0 := time.Now()
 
+	// Part 1 wants to know how many unique locations the second knot (first tail) visited
 	knots[1].visited = map[point]struct{}{point{0, 0}: struct{}{}}
+
+	// Part 2 is how many unique locations the final knot visited
 	knots[len(knots)-1].visited = map[point]struct{}{point{0, 0}: struct{}{}}
 
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
-		var udrl int
-		var amt int
+		var udrl, amt int
 		nr, err := fmt.Sscanf(s.Text(), "%c %d", &udrl, &amt)
 		if err != nil || nr != 2 {
 			panic("Invalid input!")

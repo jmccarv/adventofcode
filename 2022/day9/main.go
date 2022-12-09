@@ -68,9 +68,11 @@ func (k *knot) follow(h knot) {
 		// No need to move if we're already neighbors
 		return
 	}
+
 	ofs := sub(h.point, k.point)
 	dir := point{x: sign(ofs.x), y: sign(ofs.y)}
 	k.add(dir)
+
 	if k.visited != nil {
 		k.visited[k.point] = struct{}{}
 	}

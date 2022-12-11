@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	tm "github.com/buger/goterm"
 )
 
-type CRT [6][]byte
+type CRT struct{}
 
 type instruction struct {
 	op  string
@@ -23,8 +25,6 @@ var display CRT
 var p1 int
 
 func main() {
-	t0 := time.Now()
-
 	m := machine{regX: 1}
 	display.init()
 
@@ -41,24 +41,13 @@ func main() {
 		m.cpu(ins)
 	}
 
-	fmt.Println("Part 1", p1)
-	display.show()
-	fmt.Println("Total Time", time.Now().Sub(t0))
+	tm.Println()
+	tm.Println("Part 1:", p1)
+	tm.Flush()
 }
 
 func (d *CRT) init() {
-	for r := 0; r < 6; r++ {
-		d[r] = make([]byte, 40)
-		for i := 0; i < 40; i++ {
-			d[r][i] = '.'
-		}
-	}
-}
-
-func (d CRT) show() {
-	for r := 0; r < 6; r++ {
-		fmt.Println(string(d[r]))
-	}
+	tm.Clear()
 }
 
 func (m *machine) crt() {
@@ -68,7 +57,10 @@ func (m *machine) crt() {
 	// X register is the midpoint of our 3px wide cursor
 	if c >= m.regX-1 && c <= m.regX+1 {
 		// The current pixel is lit
-		display[r][c] = '#'
+		tm.MoveCursor(c+1, r+1)
+		tm.Print("█")
+		tm.Flush()
+		time.Sleep(time.Second / 50)
 	}
 }
 

@@ -1,0 +1,3 @@
+[submodule "input"]
+	path = input
+	url = ssh://git@gitlab.parasite.cc:10022/jmccarv/adventofcode/input

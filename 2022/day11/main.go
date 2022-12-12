@@ -8,26 +8,38 @@ import (
 //go:generate sh -c "go run gen/gen.go < input"
 
 func main() {
-	disp()
+	part1(p1monkies)
+	part2(p2monkies)
+}
 
+func part1(monkies []*monkey) {
 	for i := 0; i < 20; i++ {
 		for _, m := range monkies {
 			m.run()
 		}
-		fmt.Println("Round ", i+1)
-		disp()
 	}
 
-	part1()
-}
-
-func part1() {
 	ins := make([]int, len(monkies))
 	for i, m := range monkies {
 		ins[i] = m.inspected
 	}
 	sort.Sort(sort.Reverse(sort.IntSlice(ins)))
 	fmt.Println("Part 1", ins[0]*ins[1])
+}
+
+func part2(monkies []*monkey) {
+	for i := 0; i < 10000; i++ {
+		for _, m := range monkies {
+			m.run()
+		}
+	}
+
+	ins := make([]int, len(monkies))
+	for i, m := range monkies {
+		ins[i] = m.inspected
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(ins)))
+	fmt.Println("Part 2", ins[0]*ins[1])
 }
 
 func (m *monkey) run() {
@@ -38,7 +50,7 @@ func (m *monkey) run() {
 	m.itemQueue = []int{}
 }
 
-func disp() {
+func disp(monkies []*monkey) {
 	for _, m := range monkies {
 		fmt.Println(m)
 	}

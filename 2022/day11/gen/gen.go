@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -26,11 +27,14 @@ type monkey struct {
 	inspected int
 }
 
-var monkies []*monkey
+var p1monkies []*monkey
+var p2monkies []*monkey
 
 func init() {
 `)
-	var op, items, divBy, destTrue, destFalse string
+	var op, items, destTrue, destFalse string
+	var divBy int
+	lcm := 0
 	x := 10
 	monkey := -1
 
@@ -40,7 +44,7 @@ func init() {
 			x = 0
 			continue
 		}
-		//fmt.Println("x", x, "  ", "'"+input.Text()+"'")
+
 		switch x {
 		case 0: // starting items
 			f := strings.Split(input.Text(), ":")
@@ -50,33 +54,56 @@ func init() {
 			op = f[1]
 		case 2: //test
 			f := strings.Split(input.Text(), "by ")
-			divBy = f[1]
+			divBy, _ = strconv.Atoi(f[1])
+			if lcm > 0 {
+				lcm *= divBy
+			} else {
+				lcm = divBy
+			}
 		case 3: // If true
 			f := strings.Fields(input.Text())
 			destTrue = f[len(f)-1]
-
 		case 4: // If false
 			f := strings.Fields(input.Text())
 			destFalse = f[len(f)-1]
 
 			// we've read everything for the current monkey
 			//fmt.Println("Monkey", monkey, items, op, divBy, destTrue, destFalse)
-			fmt.Fprintf(fh, `monkies = append(monkies, &monkey{
+			fmt.Fprintf(fh, `
+p1monkies = append(p1monkies, &monkey{
 	nr: %d,
 	itemQueue: []int{%s},
 	op: func(old int) {
 		old = (%s) / 3
-		if old %% %s == 0 {
-			monkies[%s].itemQueue = append(monkies[%s].itemQueue, old)
+		if old %% %d == 0 {
+			p1monkies[%s].itemQueue = append(p1monkies[%s].itemQueue, old)
 		} else {
-			monkies[%s].itemQueue = append(monkies[%s].itemQueue, old)
+			p1monkies[%s].itemQueue = append(p1monkies[%s].itemQueue, old)
 		}
 	},
 })
-`, monkey, items, op, divBy, destTrue, destTrue, destFalse, destFalse)
+p2monkies = append(p2monkies, &monkey{
+	nr: %d,
+	itemQueue: []int{%s},
+	op: func(old int) {
+		old = (%s) %% lcm
+		if old %% %d == 0 {
+			p2monkies[%s].itemQueue = append(p2monkies[%s].itemQueue, old)
+		} else {
+			p2monkies[%s].itemQueue = append(p2monkies[%s].itemQueue, old)
+		}
+	},
+})
+`, monkey, items, op, divBy, destTrue, destTrue, destFalse, destFalse,
+				monkey, items, op, divBy, destTrue, destTrue, destFalse, destFalse)
 		}
 		x++
 	}
 
-	fmt.Fprintf(fh, "}\n")
+	fmt.Fprintf(fh, `
+}
+
+var lcm = %d
+
+`, lcm)
 }

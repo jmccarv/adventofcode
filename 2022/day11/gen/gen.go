@@ -24,7 +24,7 @@ package main
 
 type monkey struct {
 	nr int
-	itemQueue []int
+	items []int
 	op func(old int)
 	inspected int
 }
@@ -74,25 +74,25 @@ func init() {
 			fmt.Fprintf(fh, `
 p1monkies = append(p1monkies, &monkey{
 	nr: %d,
-	itemQueue: []int{%s},
+	items: []int{%s},
 	op: func(old int) {
 		old = (%s) / 3
 		if old %% %d == 0 {
-			p1monkies[%s].itemQueue = append(p1monkies[%s].itemQueue, old)
+			p1monkies[%s].items = append(p1monkies[%s].items, old)
 		} else {
-			p1monkies[%s].itemQueue = append(p1monkies[%s].itemQueue, old)
+			p1monkies[%s].items = append(p1monkies[%s].items, old)
 		}
 	},
 })
 p2monkies = append(p2monkies, &monkey{
 	nr: %d,
-	itemQueue: []int{%s},
+	items: []int{%s},
 	op: func(old int) {
 		old = (%s) %% lcm
 		if old %% %d == 0 {
-			p2monkies[%s].itemQueue = append(p2monkies[%s].itemQueue, old)
+			p2monkies[%s].items = append(p2monkies[%s].items, old)
 		} else {
-			p2monkies[%s].itemQueue = append(p2monkies[%s].itemQueue, old)
+			p2monkies[%s].items = append(p2monkies[%s].items, old)
 		}
 	},
 })

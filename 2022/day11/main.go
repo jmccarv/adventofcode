@@ -39,11 +39,11 @@ func run(monkies []*monkey, rounds int) (int, time.Duration) {
 }
 
 func (m *monkey) run() {
-	for _, i := range m.itemQueue {
+	for _, i := range m.items {
 		m.op(i)
 	}
-	m.inspected += len(m.itemQueue)
-	m.itemQueue = []int{}
+	m.inspected += len(m.items)
+	m.items = []int{}
 }
 
 func disp(monkies []*monkey) {
@@ -54,5 +54,5 @@ func disp(monkies []*monkey) {
 }
 
 func (m monkey) String() string {
-	return fmt.Sprintf("%d: %v inspected=%d", m.nr, m.itemQueue, m.inspected)
+	return fmt.Sprintf("%d: %v inspected=%d", m.nr, m.items, m.inspected)
 }

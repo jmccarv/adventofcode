@@ -21,9 +21,8 @@ type node struct {
 	h   int //height
 }
 
-var start, end int
+var start, end, nrCols int
 var p2start []int
-var nrRows, nrCols int
 var nodes []node
 
 func main() {
@@ -51,7 +50,6 @@ func main() {
 		}
 		row++
 	}
-	nrRows = len(nodes)
 
 	g := genGraph(nodes)
 
@@ -61,7 +59,7 @@ func main() {
 }
 
 func genGraph(nodes []node) *graph.Mutable {
-	g := graph.New(nrRows * nrCols)
+	g := graph.New(len(nodes) * nrCols)
 
 	// We can move from a node to another where the second
 	// node's height is at most one more than ours

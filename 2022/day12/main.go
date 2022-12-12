@@ -3,7 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
+	"runtime"
+	"time"
 
 	"github.com/yourbasic/graph"
 )
@@ -24,6 +27,7 @@ var nrRows, nrCols int
 var nodes []node
 
 func main() {
+	t0 := time.Now()
 	s := bufio.NewScanner(os.Stdin)
 	nodeNr := 0
 	row := 0
@@ -32,6 +36,8 @@ func main() {
 		for c := 0; c < len(s.Text()); c++ {
 			h := s.Text()[c]
 			switch h {
+			case 'a':
+				p2start = append(p2start, nodeNr)
 			case 'S':
 				start = nodeNr
 				p2start = append(p2start, nodeNr)
@@ -50,6 +56,8 @@ func main() {
 	g := genGraph(nodes)
 
 	part1(g)
+	part2(g)
+	fmt.Println("Total Runtime", time.Now().Sub(t0))
 }
 
 func genGraph(nodes []node) *graph.Mutable {
@@ -80,6 +88,37 @@ func genGraph(nodes []node) *graph.Mutable {
 }
 
 func part1(g *graph.Mutable) {
+	t0 := time.Now()
 	path, _ := graph.ShortestPath(g, start, end)
-	fmt.Println(len(path) - 1)
+	fmt.Println("Part 1:", len(path)-1, " in", time.Now().Sub(t0))
+}
+
+func part2(g *graph.Mutable) {
+	t0 := time.Now()
+	ch := make(chan int)
+	workers := make(chan struct{}, runtime.NumCPU())
+	var res int = math.MaxInt
+
+	go func() {
+		for _, s := range p2start {
+			workers <- struct{}{}
+			go func(s int) {
+				var res int = math.MaxInt
+				path, _ := graph.ShortestPath(g, s, end)
+				if len(path) > 0 && len(path)-1 < res {
+					res = len(path) - 1
+				}
+				ch <- res
+				<-workers
+			}(s)
+		}
+	}()
+
+	for i := 0; i < len(p2start); i++ {
+		r := <-ch
+		if r < res {
+			res = r
+		}
+	}
+	fmt.Println("Part 2:", res, " in", time.Now().Sub(t0))
 }

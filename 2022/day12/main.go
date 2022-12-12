@@ -13,43 +13,46 @@ type location struct {
 }
 
 type node struct {
-	nr int
-	l  location
-	h  int //height
+	nr  int
+	loc location
+	h   int //height
 }
 
-var start, end location
+var start, end int
+var p2start []int
 var nrRows, nrCols int
-var nodes [][]node
+var nodes []node
 
 func main() {
 	s := bufio.NewScanner(os.Stdin)
 	nodeNr := 0
+	row := 0
 	for s.Scan() {
-		r := make([]node, len(s.Text()))
+		nrCols = len(s.Text())
 		for c := 0; c < len(s.Text()); c++ {
-			loc := location{r: len(nodes), c: c}
 			h := s.Text()[c]
 			switch h {
 			case 'S':
-				start = loc
+				start = nodeNr
+				p2start = append(p2start, nodeNr)
 				h = 'a'
 			case 'E':
-				end = loc
+				end = nodeNr
 				h = 'z'
 			}
-			r[c] = node{h: int(h), l: loc, nr: nodeNr}
+			nodes = append(nodes, node{h: int(h), nr: nodeNr, loc: location{r: row, c: c}})
 			nodeNr++
 		}
-		nodes = append(nodes, r)
+		row++
 	}
 	nrRows = len(nodes)
-	nrCols = len(nodes[0])
 
-	part1()
+	g := genGraph(nodes)
+
+	part1(g)
 }
 
-func part1() {
+func genGraph(nodes []node) *graph.Mutable {
 	g := graph.New(nrRows * nrCols)
 
 	// We can move from a node to another where the second
@@ -63,23 +66,20 @@ func part1() {
 		}
 	}
 
-	for r, cols := range nodes {
-		for c, this := range cols {
+	for i, n := range nodes {
+		if n.loc.c > 0 {
+			add(nodes[i-1], n)
+		}
 
-			if c > 0 {
-				add(nodes[r][c-1], this)
-			}
-
-			if r > 0 {
-				add(nodes[r-1][c], this)
-			}
-
+		if n.loc.r > 0 {
+			add(nodes[i-nrCols], n)
 		}
 	}
 
-	//fmt.Println(g)
+	return g
+}
 
-	path, _ := graph.ShortestPath(g, nodes[start.r][start.c].nr, nodes[end.r][end.c].nr)
-	//fmt.Println(cost)
+func part1(g *graph.Mutable) {
+	path, _ := graph.ShortestPath(g, start, end)
 	fmt.Println(len(path) - 1)
 }

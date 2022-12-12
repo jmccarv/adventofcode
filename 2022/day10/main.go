@@ -58,7 +58,7 @@ func (m *machine) crt() {
 	if c >= m.regX-1 && c <= m.regX+1 {
 		// The current pixel is lit
 		tm.MoveCursor(c+1, r+1)
-		tm.Print("█")
+		tm.Print(tm.Color("█", tm.GREEN))
 		tm.Flush()
 		time.Sleep(time.Second / 50)
 	}

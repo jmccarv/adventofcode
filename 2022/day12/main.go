@@ -65,10 +65,10 @@ func genGraph(nodes []node) *graph.Mutable {
 	// node's height is at most one more than ours
 	add := func(a, b node) {
 		if a.h >= b.h-1 {
-			g.AddCost(a.nr, b.nr, int64(a.h-b.h+1))
+			g.AddCost(a.nr, b.nr, 1)
 		}
 		if b.h >= a.h-1 {
-			g.AddCost(b.nr, a.nr, int64(b.h-a.h+1))
+			g.AddCost(b.nr, a.nr, 1)
 		}
 	}
 

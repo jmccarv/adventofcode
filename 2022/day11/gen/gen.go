@@ -6,9 +6,11 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func main() {
+	t0 := time.Now()
 	input := bufio.NewScanner(os.Stdin)
 
 	fh, err := os.Create("monkies.go")
@@ -106,4 +108,6 @@ p2monkies = append(p2monkies, &monkey{
 var lcm = %d
 
 `, lcm)
+
+	fmt.Println("Generate:", time.Now().Sub(t0))
 }

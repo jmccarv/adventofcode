@@ -3,17 +3,27 @@ package main
 import (
 	"fmt"
 	"sort"
+	"time"
 )
 
+// Support 'go generate' without using the Makefile
 //go:generate sh -c "go run gen/gen.go < input"
 
 func main() {
-	part1(p1monkies)
-	part2(p2monkies)
+	t0 := time.Now()
+
+	nr, elp := run(p1monkies, 20)
+	fmt.Println("Part1:", nr, " in", elp)
+
+	nr, elp = run(p2monkies, 10000)
+	fmt.Println("Part2:", nr, " in", elp)
+
+	fmt.Println("Main: ", time.Now().Sub(t0))
 }
 
-func part1(monkies []*monkey) {
-	for i := 0; i < 20; i++ {
+func run(monkies []*monkey, rounds int) (int, time.Duration) {
+	t0 := time.Now()
+	for i := 0; i < rounds; i++ {
 		for _, m := range monkies {
 			m.run()
 		}
@@ -24,22 +34,8 @@ func part1(monkies []*monkey) {
 		ins[i] = m.inspected
 	}
 	sort.Sort(sort.Reverse(sort.IntSlice(ins)))
-	fmt.Println("Part 1", ins[0]*ins[1])
-}
 
-func part2(monkies []*monkey) {
-	for i := 0; i < 10000; i++ {
-		for _, m := range monkies {
-			m.run()
-		}
-	}
-
-	ins := make([]int, len(monkies))
-	for i, m := range monkies {
-		ins[i] = m.inspected
-	}
-	sort.Sort(sort.Reverse(sort.IntSlice(ins)))
-	fmt.Println("Part 2", ins[0]*ins[1])
+	return ins[0] * ins[1], time.Now().Sub(t0)
 }
 
 func (m *monkey) run() {

@@ -18,7 +18,7 @@ func main() {
 	nr, elp = run(p2monkeys, 10000)
 	fmt.Println("Part2:", nr, " in", elp)
 
-	fmt.Println("Main: ", time.Now().Sub(t0))
+	fmt.Println("Total Time:", time.Now().Sub(t0))
 }
 
 func run(monkeys []*monkey, rounds int) (int, time.Duration) {

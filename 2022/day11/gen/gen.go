@@ -13,7 +13,7 @@ func main() {
 	t0 := time.Now()
 	input := bufio.NewScanner(os.Stdin)
 
-	fh, err := os.Create("monkies.go")
+	fh, err := os.Create("monkeys.go")
 	if err != nil {
 		panic(err)
 	}
@@ -29,8 +29,8 @@ type monkey struct {
 	inspected int
 }
 
-var p1monkies []*monkey
-var p2monkies []*monkey
+var p1monkeys []*monkey
+var p2monkeys []*monkey
 
 func init() {
 `)
@@ -72,27 +72,27 @@ func init() {
 			// we've read everything for the current monkey
 			//fmt.Println("Monkey", monkey, items, op, divBy, destTrue, destFalse)
 			fmt.Fprintf(fh, `
-p1monkies = append(p1monkies, &monkey{
+p1monkeys = append(p1monkeys, &monkey{
 	nr: %d,
 	items: []int{%s},
 	op: func(old int) {
 		old = (%s) / 3
 		if old %% %d == 0 {
-			p1monkies[%s].items = append(p1monkies[%s].items, old)
+			p1monkeys[%s].items = append(p1monkeys[%s].items, old)
 		} else {
-			p1monkies[%s].items = append(p1monkies[%s].items, old)
+			p1monkeys[%s].items = append(p1monkeys[%s].items, old)
 		}
 	},
 })
-p2monkies = append(p2monkies, &monkey{
+p2monkeys = append(p2monkeys, &monkey{
 	nr: %d,
 	items: []int{%s},
 	op: func(old int) {
 		old = (%s) %% lcm
 		if old %% %d == 0 {
-			p2monkies[%s].items = append(p2monkies[%s].items, old)
+			p2monkeys[%s].items = append(p2monkeys[%s].items, old)
 		} else {
-			p2monkies[%s].items = append(p2monkies[%s].items, old)
+			p2monkeys[%s].items = append(p2monkeys[%s].items, old)
 		}
 	},
 })

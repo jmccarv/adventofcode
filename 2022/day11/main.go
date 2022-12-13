@@ -12,25 +12,25 @@ import (
 func main() {
 	t0 := time.Now()
 
-	nr, elp := run(p1monkies, 20)
+	nr, elp := run(p1monkeys, 20)
 	fmt.Println("Part1:", nr, " in", elp)
 
-	nr, elp = run(p2monkies, 10000)
+	nr, elp = run(p2monkeys, 10000)
 	fmt.Println("Part2:", nr, " in", elp)
 
 	fmt.Println("Main: ", time.Now().Sub(t0))
 }
 
-func run(monkies []*monkey, rounds int) (int, time.Duration) {
+func run(monkeys []*monkey, rounds int) (int, time.Duration) {
 	t0 := time.Now()
 	for i := 0; i < rounds; i++ {
-		for _, m := range monkies {
+		for _, m := range monkeys {
 			m.run()
 		}
 	}
 
-	ins := make([]int, len(monkies))
-	for i, m := range monkies {
+	ins := make([]int, len(monkeys))
+	for i, m := range monkeys {
 		ins[i] = m.inspected
 	}
 	sort.Sort(sort.Reverse(sort.IntSlice(ins)))
@@ -46,8 +46,8 @@ func (m *monkey) run() {
 	m.items = []int{}
 }
 
-func disp(monkies []*monkey) {
-	for _, m := range monkies {
+func disp(monkeys []*monkey) {
+	for _, m := range monkeys {
 		fmt.Println(m)
 	}
 	fmt.Println()

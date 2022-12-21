@@ -19,6 +19,7 @@ type box struct {
 
 type grid struct {
 	box
+	floor  int
 	points map[point]byte
 }
 
@@ -41,13 +42,28 @@ func main() {
 	//cave.dump()
 	nr := 0
 	for cave.sand() {
-		//cave.dump()
 		nr++
 	}
 	fmt.Println("Part1", nr)
+
+	cave.floor = cave.br.y + 2
+	fmt.Println("floor", cave.floor)
+	for !cave.occupied(point{x: 500}) && cave.sand() {
+		nr++
+		/*
+			if nr%100 == 0 {
+				fmt.Println(nr)
+				cave.dump()
+			}
+		*/
+	}
+	fmt.Println("Part2", nr)
 }
 
 func (g grid) inBounds(p point) bool {
+	if g.floor > 0 {
+		return p.y >= 0 && p.y <= g.floor
+	}
 	return p.y >= 0 && p.y <= g.br.y && p.x >= g.tl.x && p.x <= g.br.x
 }
 
@@ -75,10 +91,16 @@ func (g grid) sand() bool {
 	p := point{x: 500}
 	p = find(p)
 	if g.occupied(p.add(point{y: 1})) {
-		g.points[p] = 'o'
+		g.addSand(p)
 		return true
 	}
 	return false
+}
+
+func (g grid) addSand(p point) {
+	g.points[p] = 'o'
+	g.tl = g.tl.min(p)
+	g.br = g.br.max(p)
 }
 
 func (g grid) line(p1, p2 point) {
@@ -93,6 +115,9 @@ func (g grid) line(p1, p2 point) {
 }
 
 func (g grid) occupied(p point) bool {
+	if p.y == g.floor {
+		return true
+	}
 	_, ok := g.points[p]
 	return ok
 }
@@ -151,7 +176,7 @@ func (p1 point) sub(p2 point) point {
 func (g grid) dump() {
 	fmt.Printf("%v - %v\n", g.tl, g.br)
 	ofs := g.br.sub(g.tl)
-	for y := 0; y <= ofs.y; y++ {
+	for y := 0; y <= max(ofs.y, g.floor); y++ {
 		for x := 0; x <= ofs.x; x++ {
 			if p, ok := g.points[point{x: g.tl.x + x, y: g.tl.y + y}]; ok {
 				fmt.Printf("%c", p)

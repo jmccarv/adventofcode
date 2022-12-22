@@ -36,7 +36,7 @@ func (p Point) DirectionTo(q Point) Point {
 
 // Manhattan distance
 func (p Point) MhDistance(q Point) int {
-	return sm.Abs(p.X-q.X) + sm.Abs(p.Y-p.Y)
+	return sm.Abs(p.X-q.X) + sm.Abs(p.Y-q.Y)
 }
 
 // distance between two points, A & B:
@@ -47,4 +47,22 @@ func (p Point) Distance(q Point) float64 {
 
 type Box struct {
 	TL, BR Point
+}
+
+func (b1 Box) Overlaps(b2 Box) bool {
+	if b1.BR.X < b2.TL.X || b1.TL.X > b2.BR.X {
+		return false
+	}
+	if b1.BR.Y < b2.TL.Y || b1.TL.Y > b2.BR.Y {
+		return false
+	}
+	return true
+}
+
+func (b Box) Area() int {
+	return (b.BR.Y - b.TL.Y) * (b.BR.X - b.TL.X)
+}
+
+func (b Box) NrPoints() int {
+	return (b.BR.Y - b.TL.Y + 1) * (b.BR.X - b.TL.X + 1)
 }

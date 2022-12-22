@@ -6,36 +6,30 @@ import (
 	"math"
 	"os"
 	"strings"
+
+	sm "github.com/jmccarv/adventofcode/util/math"
+	s2d "github.com/jmccarv/adventofcode/util/simple2d"
 )
 
-type point struct {
-	x, y int
-}
-
-type box struct {
-	tl point
-	br point
-}
-
 type grid struct {
-	box
+	s2d.Box
 	floor  int
-	points map[point]byte
+	points map[s2d.Point]byte
 }
 
 func main() {
-	cave := grid{points: make(map[point]byte), box: box{tl: point{x: math.MaxInt}}}
+	cave := grid{points: make(map[s2d.Point]byte), Box: s2d.Box{TL: s2d.Point{X: math.MaxInt}}}
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
-		var p1, p2 point
+		var p1, p2 s2d.Point
 		points := strings.Split(s.Text(), "->")
 		for _, p := range points {
-			fmt.Sscanf(p, "%d,%d", &p2.x, &p2.y)
-			if !p1.equals(point{0, 0}) {
+			fmt.Sscanf(p, "%d,%d", &p2.X, &p2.Y)
+			if !p1.Equals(s2d.Point{0, 0}) {
 				cave.line(p1, p2)
 			}
-			cave.tl = cave.tl.min(p2)
-			cave.br = cave.br.max(p2)
+			cave.TL = cave.TL.Min(p2)
+			cave.BR = cave.BR.Max(p2)
 			p1 = p2
 		}
 	}
@@ -46,9 +40,9 @@ func main() {
 	}
 	fmt.Println("Part1", nr)
 
-	cave.floor = cave.br.y + 2
+	cave.floor = cave.BR.Y + 2
 	fmt.Println("floor", cave.floor)
-	for !cave.occupied(point{x: 500}) && cave.sand() {
+	for !cave.occupied(s2d.Point{X: 500}) && cave.sand() {
 		nr++
 		/*
 			if nr%100 == 0 {
@@ -60,125 +54,72 @@ func main() {
 	fmt.Println("Part2", nr)
 }
 
-func (g grid) inBounds(p point) bool {
+func (g grid) inBounds(p s2d.Point) bool {
 	if g.floor > 0 {
-		return p.y >= 0 && p.y <= g.floor
+		return p.Y >= 0 && p.Y <= g.floor
 	}
-	return p.y >= 0 && p.y <= g.br.y && p.x >= g.tl.x && p.x <= g.br.x
+	return p.Y >= 0 && p.Y <= g.BR.Y && p.X >= g.TL.X && p.X <= g.BR.X
 }
 
 // returns true if the sand settled and we should continue
 // returns false if the sand fell off into the void
 func (g grid) sand() bool {
-	find := func(p point) point {
-		for p.y++; g.inBounds(p); p.y++ {
+	find := func(p s2d.Point) s2d.Point {
+		for p.Y++; g.inBounds(p); p.Y++ {
 			if !g.occupied(p) {
 				continue
 			}
-			p.x--
+			p.X--
 			if !g.occupied(p) {
 				continue
 			}
-			p.x += 2
+			p.X += 2
 			if !g.occupied(p) {
 				continue
 			}
-			return p.sub(point{1, 1})
+			return p.Sub(s2d.Point{1, 1})
 		}
 		return p
 	}
 
-	p := point{x: 500}
+	p := s2d.Point{X: 500}
 	p = find(p)
-	if g.occupied(p.add(point{y: 1})) {
+	if g.occupied(p.Add(s2d.Point{Y: 1})) {
 		g.addSand(p)
 		return true
 	}
 	return false
 }
 
-func (g grid) addSand(p point) {
+func (g grid) addSand(p s2d.Point) {
 	g.points[p] = 'o'
-	g.tl = g.tl.min(p)
-	g.br = g.br.max(p)
+	g.TL = g.TL.Min(p)
+	g.BR = g.BR.Max(p)
 }
 
-func (g grid) line(p1, p2 point) {
-	var dir point // direction to move to get from p1 to p2
-	dir.x = cmp(p2.x, p1.x)
-	dir.y = cmp(p2.y, p1.y)
+func (g grid) line(p1, p2 s2d.Point) {
+	dir := p1.DirectionTo(p2) // direction to move to get from p1 to p2
 
-	for ; !p1.equals(p2); p1 = p1.add(dir) {
+	for ; !p1.Equals(p2); p1 = p1.Add(dir) {
 		g.points[p1] = '#'
 	}
 	g.points[p1] = '#'
 }
 
-func (g grid) occupied(p point) bool {
-	if p.y == g.floor {
+func (g grid) occupied(p s2d.Point) bool {
+	if p.Y == g.floor {
 		return true
 	}
 	_, ok := g.points[p]
 	return ok
 }
 
-func (p1 point) add(p2 point) point {
-	p1.x += p2.x
-	p1.y += p2.y
-	return p1
-}
-
-func (p1 point) min(p2 point) point {
-	p1.x = min(p1.x, p2.x)
-	p1.y = min(p1.y, p2.y)
-	return p1
-}
-
-func (p1 point) max(p2 point) point {
-	p1.x = max(p1.x, p2.x)
-	p1.y = max(p1.y, p2.y)
-	return p1
-}
-
-func (p1 point) equals(p2 point) bool {
-	return p1.x == p2.x && p1.y == p2.y
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func cmp(a, b int) int {
-	if a < b {
-		return -1
-	} else if a > b {
-		return 1
-	}
-	return 0
-}
-
-func (p1 point) sub(p2 point) point {
-	p1.x -= p2.x
-	p1.y -= p2.y
-	return p1
-}
-
 func (g grid) dump() {
-	fmt.Printf("%v - %v\n", g.tl, g.br)
-	ofs := g.br.sub(g.tl)
-	for y := 0; y <= max(ofs.y, g.floor); y++ {
-		for x := 0; x <= ofs.x; x++ {
-			if p, ok := g.points[point{x: g.tl.x + x, y: g.tl.y + y}]; ok {
+	fmt.Printf("%v - %v\n", g.TL, g.BR)
+	ofs := g.BR.Sub(g.TL)
+	for y := 0; y <= sm.Max(ofs.Y, g.floor); y++ {
+		for x := 0; x <= ofs.X; x++ {
+			if p, ok := g.points[s2d.Point{X: g.TL.X + x, Y: g.TL.Y + y}]; ok {
 				fmt.Printf("%c", p)
 			} else {
 				fmt.Print(".")

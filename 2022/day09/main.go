@@ -5,25 +5,24 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/jmccarv/adventofcode/util/math"
+	s2d "github.com/jmccarv/adventofcode/util/simple2d"
 )
 
-type point struct {
-	x, y int
-}
-
 type knot struct {
-	point
-	visited map[point]struct{}
+	s2d.Point
+	visited map[s2d.Point]struct{}
 }
 
 type rope [10]knot
 
 var (
-	directions = map[int]point{
-		'U': point{0, -1},
-		'D': point{0, 1},
-		'L': point{-1, 0},
-		'R': point{1, 0},
+	directions = map[int]s2d.Point{
+		'U': s2d.Point{0, -1},
+		'D': s2d.Point{0, 1},
+		'L': s2d.Point{-1, 0},
+		'R': s2d.Point{1, 0},
 	}
 
 	knots rope
@@ -33,10 +32,10 @@ func main() {
 	t0 := time.Now()
 
 	// Part 1 wants to know how many unique locations the second knot (first tail) visited
-	knots[1].visited = map[point]struct{}{point{0, 0}: struct{}{}}
+	knots[1].visited = map[s2d.Point]struct{}{s2d.Point{0, 0}: struct{}{}}
 
 	// Part 2 is how many unique locations the final knot visited
-	knots[len(knots)-1].visited = map[point]struct{}{point{0, 0}: struct{}{}}
+	knots[len(knots)-1].visited = map[s2d.Point]struct{}{s2d.Point{0, 0}: struct{}{}}
 
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
@@ -51,7 +50,7 @@ func main() {
 
 		for z := 0; z < amt; z++ {
 			// knots[0] is our 'Head' knot
-			knots[0].point = knots[0].add(dir)
+			knots[0].Point = knots[0].Add(dir)
 
 			// Now successive knots follow the one before it so that they
 			// are always neighboring the preceding knot.
@@ -73,96 +72,50 @@ func (k *knot) follow(h knot) {
 		return
 	}
 
-	ofs := h.sub(k.point)
-	dir := point{x: sign(ofs.x), y: sign(ofs.y)}
-	k.point = k.add(dir)
+	ofs := h.Sub(k.Point)
+	dir := s2d.Point{X: math.Sign(ofs.X), Y: math.Sign(ofs.Y)}
+	k.Point = k.Add(dir)
 
 	if k.visited != nil {
-		k.visited[k.point] = struct{}{}
+		k.visited[k.Point] = struct{}{}
 	}
-}
-
-func (p point) add(q point) point {
-	return point{x: p.x + q.x, y: p.y + q.y}
-}
-
-func (p point) sub(q point) point {
-	return point{x: p.x - q.x, y: p.y - q.y}
-}
-
-func (p point) min(q point) point {
-	return point{x: min(p.x, q.x), y: min(p.y, q.y)}
-}
-
-func (p point) max(q point) point {
-	return point{x: max(p.x, q.x), y: max(p.y, q.y)}
 }
 
 func (k knot) neighbors(h knot) bool {
-	ofs := h.sub(k.point)
-	return abs(ofs.x) <= 1 && abs(ofs.y) <= 1
+	ofs := h.Sub(k.Point)
+	return math.Abs(ofs.X) <= 1 && math.Abs(ofs.Y) <= 1
 }
 
 func (k knot) String() string {
-	return fmt.Sprintf("%v", k.point)
-}
-
-func abs(a int) int {
-	if a < 0 {
-		return -a
-	}
-	return a
-}
-
-func sign(a int) int {
-	if a == 0 {
-		return 0
-	} else if a < 0 {
-		return -1
-	}
-	return 1
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
+	return fmt.Sprintf("%v", k.Point)
 }
 
 func (r rope) dump() {
 	// Get the bouding box first
-	var tl, br point
+	var tl, br s2d.Point
 	for _, k := range r {
-		tl = tl.min(k.point)
-		br = br.max(k.point)
+		tl = tl.Min(k.Point)
+		br = br.Max(k.Point)
 	}
 	// Total size of our grid
-	size := br.sub(tl).add(point{1, 1})
+	size := br.Sub(tl).Add(s2d.Point{1, 1})
 
 	// ofs will be what we translate all our x and y values by to get their location on our grid
-	ofs := point{}.sub(tl)
+	ofs := s2d.Point{}.Sub(tl)
 
-	grid := make([][]byte, size.y)
-	for r := 0; r < size.y; r++ {
-		grid[r] = make([]byte, size.x)
-		for c := 0; c < size.x; c++ {
+	grid := make([][]byte, size.Y)
+	for r := 0; r < size.Y; r++ {
+		grid[r] = make([]byte, size.X)
+		for c := 0; c < size.X; c++ {
 			grid[r][c] = '.'
 		}
 	}
 
-	grid[ofs.y][ofs.x] = 's' // starting point
+	grid[ofs.Y][ofs.X] = 's' // starting point
 	for i := len(r) - 1; i >= 0; i-- {
 		// translate this one to it's location
-		loc := ofs.add(r[i].point)
-		grid[loc.y][loc.x] = byte('0' + i)
+		loc := ofs.Add(r[i].Point)
+		grid[loc.Y][loc.X] = byte('0' + i)
 	}
 
 	// And now we can print it

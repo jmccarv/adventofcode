@@ -106,10 +106,12 @@ void solve(char *fn) {
             if ( (a.min <= b.min && a.max >= b.max) || (b.min <= a.min && b.max >= a.max) ) {
                 cputs("*");
                 nr_contain++;
-            }
 
-            // part2 -- does one overlap the other?
-            if ( (a.min <= b.max && a.max >= b.min) || (b.min <= a.max && b.max >= a.min) ) {
+                // if one contains the other, they also overlap (part 2)
+                nr_overlap++;
+
+            } else if ( (a.min <= b.max && a.max >= b.min) || (b.min <= a.max && b.max >= a.min) ) {
+                // part2 -- does one overlap the other?
                 nr_overlap++;
                 cputs("+");
             }
@@ -123,5 +125,4 @@ void solve(char *fn) {
         cprintf("Open failed: %d %d\r\n", errno, __oserror);
         perror("Open failed :(");
     }
-
 }

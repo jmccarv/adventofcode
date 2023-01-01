@@ -6,8 +6,7 @@ use warnings;
 sub pr_struct {
     my $nr = shift;
     print <<EOT;
-typedef struct pairs pair_t;
-typedef struct pairs {
+struct pairs {
     int nr;
     unsigned char min1[$nr];
     unsigned char max1[$nr];
@@ -15,7 +14,7 @@ typedef struct pairs {
     unsigned char max2[$nr];
 };
 
-const pair_t assn = {
+const struct pairs assn = {
 EOT
 }
 

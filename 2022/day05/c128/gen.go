@@ -47,6 +47,11 @@ func main() {
 		}
 	}
 
+	for _, s := range stacks {
+		// Reverse the stacks because the ends of the arrays should be the top of the stacks
+		s.reverse()
+	}
+
 	// Now generate C struct with stacks set to their initial configuration
 	doStack("p1", stacks)
 	doStack("p2", stacks)
@@ -86,18 +91,18 @@ struct moves_t moves = {
 func doStack(p string, stacks hold) {
 	fmt.Printf("unsigned char %sstacks[%d][50] = {\n", p, len(stacks))
 	for _, s := range stacks {
-		// Reverse the stacks because the ends of the arrays should be the top of the stacks
-		s.reverse()
 		fmt.Printf("{'%s'},\n", strings.Join(strings.Split(string(s), ""), "','"))
 	}
 	fmt.Printf("};\n")
 
-	fmt.Printf("unsigned char %stop[%d] = {", p, len(stacks))
-	x := ""
-	for _, s := range stacks {
-		x += fmt.Sprintf(",%d", len(s)-1)
+	fmt.Printf("unsigned char *%ssp[%d] = {\n", p, len(stacks))
+	//x := ""
+	for i, s := range stacks {
+		//x += fmt.Sprintf(",%d", len(s)-1)
+		fmt.Printf("(unsigned char *)&(%sstacks[%d]) + %d,\n", p, i, len(s))
 	}
-	fmt.Printf("%s};\n", x[1:])
+	//fmt.Printf("%s};\n", x[1:])
+	fmt.Printf("};\n")
 }
 
 func (s stack) reverse() {

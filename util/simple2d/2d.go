@@ -59,10 +59,22 @@ func (b1 Box) Overlaps(b2 Box) bool {
 	return true
 }
 
+func (b1 Box) Equals(b2 Box) bool {
+	return b1.TL.Equals(b2.TL) && b1.BR.Equals(b2.BR)
+}
+
+func (b1 Box) Contains(b2 Box) bool {
+	return b1.TL.X <= b2.TL.X && b1.TL.Y <= b2.TL.Y && b1.BR.X >= b2.BR.X && b1.BR.Y >= b2.BR.Y
+}
+
 func (b Box) Area() int {
 	return (b.BR.Y - b.TL.Y) * (b.BR.X - b.TL.X)
 }
 
 func (b Box) NrPoints() int {
 	return (b.BR.Y - b.TL.Y + 1) * (b.BR.X - b.TL.X + 1)
+}
+
+func (b Box) Translate(by Point) Box {
+	return Box{TL: b.TL.Add(by), BR: b.BR.Add(by)}
 }

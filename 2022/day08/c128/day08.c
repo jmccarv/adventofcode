@@ -44,11 +44,16 @@ void main(void) {
 // #define cell(grid, r, c) grid[size*r+c]
 void solve(char *data) {
     char v, nr, r;
-    long score;
     register char *cp, *p;
     register char *rp = data+size;
-    long p2 = 0;
-    int vis = 0;
+    unsigned int vis = 0;
+
+    // longs (32 bit) are very slow, so we'll do as little as we can with them
+    // using s1 and s2 instead of just using score sped this up from ~45 seconds
+    // to ~30 seconds on the full input!
+    unsigned int s1, s2;
+    unsigned long score;
+    unsigned long p2 = 0;
 
     for (r=1; rp < data+(size*(size-1)); rp += size, ++r) {
         cprintf("%d\r", r);
@@ -62,7 +67,7 @@ void solve(char *data) {
                     break;
                 }
             }
-            score = nr;
+            s1 = nr;
 
             // check down
             for (nr = 0, p = cp+size; p < data+size*size; p += size) {
@@ -72,7 +77,7 @@ void solve(char *data) {
                     break;
                 }
             }
-            score *= nr;
+            s1 *= nr;
 
             // left
             for (nr = 0, p = cp-1; p >= rp; --p) {
@@ -82,7 +87,7 @@ void solve(char *data) {
                     break;
                 }
             }
-            score *= nr;
+            s2 = nr;
 
             // right
             for (nr = 0, p = cp+1; p < rp+size; ++p) {
@@ -92,7 +97,8 @@ void solve(char *data) {
                     break;
                 }
             }
-            score *= nr;
+            s2 *= nr;
+            score = (unsigned long)s1 * s2;
 
             if (v) ++vis;
             if (score > p2) p2 = score;

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-day=day08
-d=d8
+day=day10
+d=d10
 
 petcat -text -w2 -o example.pet -- example_input
 petcat -text -w2 -o input.pet -- input

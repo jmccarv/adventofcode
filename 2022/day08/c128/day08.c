@@ -49,8 +49,10 @@ void solve(char *data) {
     unsigned int vis = 0;
 
     // longs (32 bit) are very slow, so we'll do as little as we can with them
-    // using s1 and s2 instead of just using score sped this up from ~45 seconds
-    // to ~30 seconds on the full input!
+    // using s1 and s2 to do two 16 bit multiplications per and one 32 bit
+    // multiplication per cell instead of just using score (three 32 bit
+    // multiplications per cell) sped this up from ~45 seconds to ~30 seconds
+    // on the full input!
     unsigned int s1, s2;
     unsigned long score;
     unsigned long p2 = 0;

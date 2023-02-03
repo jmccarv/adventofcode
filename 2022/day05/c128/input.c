@@ -94,4 +94,3 @@ char *load_input(struct cbm_dirent *ent) {
     data[nr] = '\0';
     return data;
 }
-

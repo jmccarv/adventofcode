@@ -20,7 +20,7 @@ void main(void) {
     screensize(&x, &y);
     if (x == 80) fast();
 
-    data = load_input(get_input_file());
+    if (NULL == (data = load_input(get_input_file()))) return;
 
     t0 = clock();
 

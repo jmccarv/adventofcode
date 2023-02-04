@@ -29,7 +29,7 @@ void main(void) {
     screensize(&x, &y);
     if (x == 80) fast();
 
-    solve(parse_initial_state(load_input(get_input_file())));
+    solve(parse_initial_state(load_input(get_input_file(INFILE_PREFIX))));
     /*
     cprintf("nr_stacks: %d\r\n", nr_stacks);
     cprintf("%c\r\n", *data);

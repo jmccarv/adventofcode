@@ -24,7 +24,7 @@ void main(void) {
 
     t0 = clock();
 
-    data = strtok(load_input(get_input_file()), "\n");
+    data = strtok(load_input(get_input_file(INFILE_PREFIX)), "\n");
     while (data) {
         solve(data, 14, solve(data, 4, 0)-4);
         data = strtok(NULL, "\n");

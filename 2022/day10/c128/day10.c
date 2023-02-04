@@ -6,8 +6,7 @@
 #include "util/input.h"
 #include "util/tui.h"
 
-// used by input.c
-const char *infile_prefix = "d10.";
+#define INFILE_PREFIX "d10."
 
 void part1(void);
 void crt(void);
@@ -32,7 +31,7 @@ void main(void) {
     screensize(&x, &y);
     if (x == 80) fast();
 
-    if (NULL == (data = load_input(get_input_file()))) return;
+    if (NULL == (data = load_input(get_input_file(INFILE_PREFIX)))) return;
 
     t0 = clock();
     init();
@@ -70,7 +69,7 @@ void cpu(register char *p) {
 }
 
 void init(void) {
-    char i = 0;
+    unsigned char i = 0;
     bgcolor(COLOR_BLACK);
     bordercolor(COLOR_BLACK);
     textcolor(COLOR_RED);

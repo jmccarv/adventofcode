@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <cbm.h>
 
-#include "util/input.h"
-#include "util/tui.h"
+#include "input.h"
+#include "tui.h"
 
 #define INFILE_PREFIX "d10."
 

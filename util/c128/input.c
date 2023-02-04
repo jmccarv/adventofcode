@@ -6,17 +6,13 @@
 
 #include "input.h"
 
-extern const char *infile_prefix;
-
-struct cbm_dirent *get_input_file(void) {
-    unsigned char r = cbm_opendir(1, getcurrentdevice());
+struct cbm_dirent *get_input_file(const char *infile_prefix) {
+    static struct cbm_dirent ents[4];
     register struct cbm_dirent *ent;
-    unsigned char x;
-    char c;
+    unsigned char c, x;
     unsigned char len = 0;
     unsigned char nr_ents = 0;
-    static struct cbm_dirent ents[4];
-
+    unsigned char r = cbm_opendir(1, getcurrentdevice());
 
     cprintf("Listing possible input files\r\n");
     cprintf("Nr %-16s %s\r\n", "File Name", "Size");
@@ -28,7 +24,7 @@ struct cbm_dirent *get_input_file(void) {
     ent = &ents[0];
     if (r == 0) { 
         while (nr_ents < 4 && 0 == (r = cbm_readdir(1, ent))) {
-            if (ent->type == CBM_T_PRG && strlen(ent->name) > 3 && 0 == strncmp(ent->name, infile_prefix, strlen(infile_prefix))) {
+            if (ent->type == CBM_T_PRG && (!infile_prefix || strlen(ent->name) > 3 && 0 == strncmp(ent->name, infile_prefix, strlen(infile_prefix)))) {
                 cprintf("%2d %-16s %4d\r\n", nr_ents+1, ent->name, ent->size);
                 ent = &ents[++nr_ents];
             }
@@ -53,8 +49,8 @@ struct cbm_dirent *get_input_file(void) {
     }
 }
 
-char *load_input(struct cbm_dirent *ent) {
-    char *data;
+void *load_input(struct cbm_dirent *ent) {
+    unsigned char *data;
     unsigned int nr;
 
     if (!ent) return NULL;

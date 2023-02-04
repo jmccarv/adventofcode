@@ -3,9 +3,6 @@
 
 #include "input.h"
 
-// used by input.c
-const char *infile_prefix = "d8.";
-
 void solve(char *data);
 
 // size of grid -- input is a square grid of cells
@@ -20,7 +17,7 @@ void main(void) {
     screensize(&x, &y);
     if (x == 80) fast();
 
-    if (NULL == (data = load_input(get_input_file()))) return;
+    if (NULL == (data = load_input(get_input_file(INFILE_PREFIX)))) return;
 
     t0 = clock();
 

@@ -6,8 +6,6 @@
 #include "input.h"
 #include "tui.h"
 
-#define INFILE_PREFIX "d10."
-
 void part1(void);
 void crt(void);
 void cpu(register char *p);

@@ -44,9 +44,9 @@ write:	build inpet
 	for fn in $(INFILES); do 
 		cbmctrl --petscii command $(DEV) "s:$(D).$$fn"
 	done
-	cbmwrite -d 1541 -f P $(DEV) $(DAY)
+	cbmwrite -f P $(DEV) $(DAY)
 	for fn in $(INFILES); do
-		cbmwrite -d 1541 -o $(D).$$fn $(DEV) $$fn.pet.prg
+		cbmwrite -o $(D).$$fn $(DEV) $$fn.pet.prg
 	done
 	cbmctrl dir $(DEV)
 

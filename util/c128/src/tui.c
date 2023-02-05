@@ -2,21 +2,17 @@
 #include <conio.h>
 
 void box(unsigned char lx, unsigned char ty, unsigned char rx, unsigned char by) {
-    unsigned char i;
+    unsigned char w = rx-lx-1;
+    unsigned char h = by-ty-1;
+
     cputcxy(lx, ty, CH_ULCORNER);
-    for (i = lx+1; i < rx; ++i) {
-        cputc(CH_HLINE);
-    }
+    chline(w);
     cputc(CH_URCORNER);
 
-    for (i = ty+1; i < by; ++i) {
-        cputcxy(lx, i, CH_VLINE);
-        cputcxy(rx, i, CH_VLINE);
-    }
+    cvlinexy(lx, ty+1, h);
+    cvlinexy(rx, ty+1, h);
 
     cputcxy(lx, by, CH_LLCORNER);
-    for (i = lx+1; i < rx; ++i) {
-        cputc(CH_HLINE);
-    }
+    chline(w);
     cputc(CH_LRCORNER);
 }

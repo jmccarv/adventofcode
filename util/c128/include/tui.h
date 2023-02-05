@@ -1,1 +1,1 @@
-void box(unsigned char tx, unsigned char ly, unsigned char bx, unsigned char ry);
+void box(unsigned char lx, unsigned char ty, unsigned char rx, unsigned char by);

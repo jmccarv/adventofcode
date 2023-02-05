@@ -73,8 +73,8 @@ void init(void) {
     textcolor(COLOR_RED);
 
     clrscr();
-    gotoxy(0,0);
     box(10, 0, 30, 3);
+
     textcolor(COLOR_LIGHTRED);
     cputsxy(12, 1, "CLK");
     cputsxy(22, 1, "X");

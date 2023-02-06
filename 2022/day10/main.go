@@ -75,7 +75,7 @@ func (m *machine) cpu(ins instruction) {
 }
 
 func (m machine) part1() {
-	if m.clock == 20 || (m.clock-20)%40 == 0 {
+	if (m.clock-20)%40 == 0 {
 		p1 += m.regX * m.clock
 	}
 }

@@ -73,7 +73,7 @@ void init(void) {
     textcolor(COLOR_RED);
 
     clrscr();
-    box(10, 0, 30, 3);
+    box(10, 0, 30, 3, NULL);
 
     textcolor(COLOR_LIGHTRED);
     cputsxy(12, 1, "CLK");
@@ -108,7 +108,7 @@ void crt(void) {
 
 void part1(void) {
     int s;
-    if (m.clock == 20 || (m.clock-20)%40 == 0) {
+    if ((m.clock-20)%40 == 0) {
         s = m.x * m.clock;
         m.p1 += s;
 

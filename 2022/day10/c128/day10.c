@@ -53,14 +53,15 @@ void cpu(register char *p) {
     part1();
     if (*p != 'a') return; // noop
 
-    // addx takes two cycles to complete
-    tick();
-    crt();
-
     // move past 'addx ' to get to the argument
     sscanf(p+5, "%d\n", &arg);
 
+    // addx takes two cycles to complete
+    tick();
+    crt();
     part1();
+
+    // addx completes
     m.x += arg;
 
     return;

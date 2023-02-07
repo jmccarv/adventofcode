@@ -36,18 +36,34 @@ func main() {
 			panic("Invalid input!")
 		}
 
-		m.clock++
+		m.tick()
 		m.crt()
 		m.cpu(ins)
 	}
 
-	tm.Println()
+	tm.MoveCursor(1, 12)
 	tm.Println("Part 1:", p1)
 	tm.Flush()
 }
 
 func (d *CRT) init() {
 	tm.Clear()
+
+	tm.MoveCursor(1, 1)
+
+	b := tm.NewBox(20, 4, 0)
+	b.Border = "─ │ ┌ ┐ └ ┘"
+
+	tm.Print(tm.Color(tm.MoveTo(b.String(), 10, 1), tm.RED))
+	tm.Print(tm.Color(tm.MoveTo("CLK      X", 12, 2), tm.RED))
+	tm.Print(tm.Color(tm.MoveTo("S      T", 14, 3), tm.RED))
+}
+
+func (m *machine) tick() {
+	m.clock++
+	tm.Print(tm.Color(tm.MoveTo(fmt.Sprintf("%03d", m.clock), 16, 2), tm.BLUE))
+	tm.Print(tm.Color(tm.MoveTo(fmt.Sprintf("%03d", m.regX), 23, 2), tm.BLUE))
+	tm.Flush()
 }
 
 func (m *machine) crt() {
@@ -57,7 +73,7 @@ func (m *machine) crt() {
 	// X register is the midpoint of our 3px wide cursor
 	if c >= m.regX-1 && c <= m.regX+1 {
 		// The current pixel is lit
-		tm.MoveCursor(c+1, r+1)
+		tm.MoveCursor(c+1, r+5)
 		tm.Print(tm.Color("█", tm.GREEN))
 		tm.Flush()
 		time.Sleep(time.Second / 50)
@@ -67,7 +83,7 @@ func (m *machine) crt() {
 func (m *machine) cpu(ins instruction) {
 	m.part1()
 	if ins.op == "addx" {
-		m.clock++
+		m.tick()
 		m.crt()
 		m.part1()
 		m.regX += ins.arg
@@ -76,6 +92,11 @@ func (m *machine) cpu(ins instruction) {
 
 func (m machine) part1() {
 	if (m.clock-20)%40 == 0 {
-		p1 += m.regX * m.clock
+		s := m.regX * m.clock
+		p1 += s
+
+		tm.Print(tm.Color(tm.MoveTo(fmt.Sprintf("%4d", s), 16, 3), tm.BLUE))
+		tm.Print(tm.Color(tm.MoveTo(fmt.Sprintf("%-5d", p1), 23, 3), tm.BLUE))
+		tm.Flush()
 	}
 }

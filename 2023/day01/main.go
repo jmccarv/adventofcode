@@ -20,21 +20,20 @@ func main() {
 	fmt.Println("part2", p2)
 }
 
-func decode(text string, digit func(s string) int) int {
-	var l, r int
+func decode(text string, digit func(s string) int) (ret int) {
 	for i := range text {
 		if d := digit(text[i:]); d > 0 {
-			l = d
+			ret = d * 10
 			break
 		}
 	}
 	for i := len(text) - 1; i >= 0; i-- {
 		if d := digit(text[i:]); d > 0 {
-			r = d
+			ret += d
 			break
 		}
 	}
-	return l*10 + r
+	return
 }
 
 func p1Digit(text string) int {

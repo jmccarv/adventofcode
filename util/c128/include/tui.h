@@ -1,1 +1,1 @@
-void box(unsigned char lx, unsigned char ty, unsigned char rx, unsigned char by);
+void box(unsigned char lx, unsigned char ty, unsigned char rx, unsigned char by, char *title);

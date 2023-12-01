@@ -76,7 +76,7 @@ func (m *machine) crt() {
 		tm.MoveCursor(c+1, r+5)
 		tm.Print(tm.Color("█", tm.GREEN))
 		tm.Flush()
-		time.Sleep(time.Second / 50)
+		time.Sleep(time.Second / 25)
 	}
 }
 

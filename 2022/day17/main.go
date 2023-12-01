@@ -25,14 +25,17 @@ var rocks = []s2d.Shape{
 	s2d.NewShapeFromString([]string{"##", "##"}, '#'),
 }
 
-type sensor struct {
-	s2d.Point
-	beacon s2d.Point
+type historyKey struct {
+	shape int
+	jet   int
 }
 
-var (
-	p1y, p2max int
-)
+type history struct {
+	rockNr int
+	height int
+}
+
+var hist = make(map[historyKey][]history)
 
 func main() {
 	t0 := time.Now()
@@ -50,20 +53,38 @@ func main() {
 	shaft := s2d.ShapeField{Bounds: s2d.Box{TL: s2d.Point{0, math.MinInt}, BR: s2d.Point{6, -1}}}
 	height := shaft.Bounds.BR.Y + 1
 
-	run := func() {
-		r := nextRock()
+	for rockNr := 1; rockNr <= 2022; rockNr++ {
+		ri, r := nextRock()
 		//fmt.Println("ROCK", r)
 		r.Loc = s2d.Point{2, height - r.Size.Y - 3}
 
 		rock := shaft.AddShape(r)
+		first := true
 		//fmt.Println("hight:", height, " sizeY:", rock.Size.Y, "locY:", rock.Loc.Y)
 
 		// Now we alternate between being pushed by a jet and falling one space
 		// until we can fall no farther
 		//fmt.Println(shaft.DumpWindow(s2d.Box{s2d.Point{0, rock.Loc.Y}, shaft.Bounds.BR}))
+		var ji int
+		var jet byte
 		for {
 			dir := s2d.Point{}
-			switch nextJet() {
+			ji, jet = nextJet()
+
+			if first {
+				if hval, ok := hist[historyKey{ri, ji}]; ok {
+					lh := hval[len(hval)-1]
+					cycle := rockNr - lh.rockNr
+					p1 := (2022 - rockNr) / cycle * sm.Abs(height-lh.height)
+					fmt.Printf("SEEN: %d, %d, %d, %d, %d %d -- %d\n", rockNr, cycle, ri, ji, hval, height, p1)
+
+					//rockNr = p1
+				}
+				hist[historyKey{ri, ji}] = append(hist[historyKey{ri, ji}], history{rockNr, height})
+				first = false
+			}
+
+			switch jet {
 			case '<':
 				dir.X = -1
 			case '>':
@@ -80,10 +101,6 @@ func main() {
 		height = sm.Min(height, rock.Loc.Y)
 	}
 
-	i := 0
-	for ; i < 2022; i++ {
-		run()
-	}
 	fmt.Println("Part 1 Height:", -height)
 
 	/*
@@ -96,11 +113,12 @@ func main() {
 	fmt.Println("Total Time", time.Now().Sub(t0))
 }
 
-func nextFunc[T any](list []T) func() T {
+func nextFunc[T any](list []T) func() (int, T) {
 	next := 0
-	return func() T {
-		t := list[next]
+	return func() (i int, t T) {
+		i = next
+		t = list[next]
 		next = (next + 1) % len(list)
-		return t
+		return
 	}
 }

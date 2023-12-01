@@ -5,62 +5,53 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"unicode"
-	//sm "github.com/jmccarv/adventofcode/util/math"
-	//s2d "github.com/jmccarv/adventofcode/util/simple2d"
 )
 
-var p1 int
-var p2 int
+var nums = []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
 
 func main() {
+	var p1, p2 int
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
-		part1(s.Text(), &p1)
-		part2(s.Text(), &p2)
+		p1 += decode(s.Text(), p1Digit)
+		p2 += decode(s.Text(), p2Digit)
 	}
 	fmt.Println("part1", p1)
 	fmt.Println("part2", p2)
 }
 
-func part1(text string, res *int) {
-	var nums string
-	for _, c := range text {
-		if unicode.IsDigit(c) {
-			nums += string(c)
+func decode(text string, digit func(s string) int) int {
+	var l, r int
+	for i := range text {
+		if d := digit(text[i:]); d > 0 {
+			l = d
+			break
 		}
 	}
-	if len(nums) > 0 {
-		*res += int((nums[0]-'0')*10) + int(nums[len(nums)-1]-'0')
+	for i := len(text) - 1; i >= 0; i-- {
+		if d := digit(text[i:]); d > 0 {
+			r = d
+			break
+		}
 	}
+	return l*10 + r
 }
 
-func part2(text string, res *int) {
-	nums := map[string]string{
-		"one":   "1",
-		"two":   "2",
-		"three": "3",
-		"four":  "4",
-		"five":  "5",
-		"six":   "6",
-		"seven": "7",
-		"eight": "8",
-		"nine":  "9",
+func p1Digit(text string) int {
+	if text[0] >= '0' && text[0] <= '9' {
+		return int(text[0] - '0')
 	}
+	return -1
+}
 
-	for ofs := 0; ofs < len(text)-1; ofs++ {
-		left := text[0:ofs]
-		right := text[ofs:]
-		for k, v := range nums {
-			if strings.Index(right, k) == 0 {
-				// leave the last character of the number's name as it might overlap and we need to transform both
-				// i.e. the string "eightwo"  must turn into "82" (well "82o") is thankfully also acceptible
-				text = left + v + right[len(k)-1:]
-				break
-			}
+func p2Digit(text string) int {
+	if n := p1Digit(text); n >= 0 {
+		return n
+	}
+	for i, num := range nums {
+		if strings.Index(text, num) == 0 {
+			return i + 1
 		}
 	}
-
-	fmt.Println(text)
-	part1(text, res)
+	return -1
 }

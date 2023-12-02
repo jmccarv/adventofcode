@@ -15,19 +15,15 @@ func main() {
 		var p2max map[string]int = map[string]int{"red": 0, "green": 0, "blue": 0}
 		game := strings.Split(s.Text(), ":")
 		fmt.Sscanf(game[0], "Game %d", &id)
-		rounds := strings.Split(game[1], ";")
 		good := true
-		for _, r := range rounds {
-			cubes := strings.Split(r, ",")
-			for _, c := range cubes {
-				var nr int
-				var color string
-				fmt.Sscanf(c, "%d %s", &nr, &color)
-				//fmt.Println("Game", id, c, nr, color)
-				p2max[color] = max(p2max[color], nr)
-				if nr > p1max[color] {
-					good = false
-				}
+		for _, c := range strings.FieldsFunc(game[1], func(r rune) bool { return r == ',' || r == ';' }) {
+			var nr int
+			var color string
+			fmt.Sscanf(c, "%d %s", &nr, &color)
+			//fmt.Println("Game", id, c, nr, color)
+			p2max[color] = max(p2max[color], nr)
+			if nr > p1max[color] {
+				good = false
 			}
 		}
 		//fmt.Println(id, good, p2max)

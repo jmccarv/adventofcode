@@ -9,9 +9,9 @@ import (
 )
 
 func main() {
-	var p1max map[string]int = map[string]int{"red": 12, "green": 13, "blue": 14}
-	re := regexp.MustCompile(`(\d+)\s(\w+)`)
 	var id, p1, p2 int
+	p1max := map[string]int{"red": 12, "green": 13, "blue": 14}
+	re := regexp.MustCompile(`(\d+)\s(\w+)`)
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
 		id++
@@ -19,7 +19,6 @@ func main() {
 		for _, m := range re.FindAllStringSubmatch(s.Text(), -1) {
 			nr, _ := strconv.Atoi(m[1])
 			mx[m[2]] = max(mx[m[2]], nr)
-			fmt.Println(id, m[1], m[2], mx[m[2]])
 		}
 		p2tmp := 1
 		good := true

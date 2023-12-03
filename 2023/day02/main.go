@@ -21,16 +21,14 @@ func main() {
 			mx[m[2]] = max(mx[m[2]], nr)
 		}
 		p2tmp := 1
-		good := true
+		good := id
 		for color, nr := range mx {
 			if nr > p1max[color] {
-				good = false
+				good = 0
 			}
 			p2tmp *= nr
 		}
-		if good {
-			p1 += id
-		}
+		p1 += good
 		p2 += p2tmp
 	}
 	fmt.Println("p1", p1)

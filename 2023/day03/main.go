@@ -59,6 +59,10 @@ func ReadGameBoard(r io.Reader, empty rune) *GameBoard {
 	return &gb
 }
 
+func (gb *GameBoard) Bounds() s2d.Box {
+	return s2d.Box{TL: s2d.Point{0, 0}, BR: gb.Max}
+}
+
 func (gb *GameBoard) String() string {
 	ret := fmt.Sprintf("Rows: %d Cols: %d Max: %+v Empty '%v'\n", gb.Rows, gb.Cols, gb.Max, gb.Empty)
 	for _, r := range gb.Cells {
@@ -115,17 +119,19 @@ func (gb *GameBoard) Slice(from s2d.Box) *GameBoard {
 	return &n
 }
 
-func (gb *GameBoard) NeighborSlice(of s2d.Point) *GameBoard {
+func (gb *GameBoard) NeighborSlice(of s2d.Bounder) *GameBoard {
+	b := of.Bounds()
 	return gb.Slice(s2d.Box{
-		TL: of.Sub(s2d.Point{1, 1}),
-		BR: of.Add(s2d.Point{1, 1}),
+		TL: b.TL.Sub(s2d.Point{1, 1}),
+		BR: b.BR.Add(s2d.Point{1, 1}),
 	})
 }
 
-func (gb *GameBoard) NeighboringCells(of s2d.Point) []GBCell {
+func (gb *GameBoard) NeighboringCells(of s2d.Bounder) []GBCell {
+	b := of.Bounds()
 	var ret []GBCell
-	for _, cell := range gb.NeighborSlice(of).Flat() {
-		if !cell.Loc.Equals(of) {
+	for _, cell := range gb.NeighborSlice(b).Flat() {
+		if !b.Contains(cell.Loc) {
 			ret = append(ret, cell)
 		}
 	}
@@ -144,42 +150,50 @@ func isSym(r rune) bool {
 	return strings.IndexRune(`#$%&*+-/=@`, r) > -1
 }
 
+type Number struct {
+	s2d.Box
+	val int
+}
+
 func main() {
-	var nr, p1, p2 int
-	var keep bool
-	gears := make(map[GBCell][]int)
-	stars := make(map[GBCell]struct{})
+	var nr Number
+	var p1, p2 int
+	var nums []Number
 	gb := ReadGameBoard(os.Stdin, '.')
+
+	// Locate numbers first
 	for _, cell := range gb.Flat() {
 		if cell.Val < '0' || cell.Val > '9' {
-			if cell.Val == '*' {
-				stars[cell] = struct{}{}
+			if nr.val > 0 {
+				nums = append(nums, nr)
 			}
-			if nr > 0 && keep {
-				p1 += nr
-				for cell := range stars {
-					gears[cell] = append(gears[cell], nr)
-				}
-			}
-			clear(stars)
-			nr, keep = 0, false
+			nr = Number{}
 			continue
 		}
-		for _, n := range gb.NeighboringCells(cell.Loc) {
-			if isSym(n.Val) {
-				keep = true
-				if n.Val == '*' {
-					stars[n] = struct{}{}
-				}
+
+		if nr.val == 0 {
+			nr.TL = cell.Loc
+		}
+		nr.BR = cell.Loc
+		nr.val = nr.val*10 + int(cell.Val-'0')
+	}
+	if nr.val > 0 {
+		nums = append(nums, nr)
+	}
+
+	gears := make(map[GBCell][]int) // We need these for part 2
+	for _, nr := range nums {
+		p1Num := 0
+		for _, cell := range gb.NeighboringCells(nr.Box) {
+			if !isSym(cell.Val) {
+				continue
+			}
+			p1Num = nr.val
+			if cell.Val == '*' {
+				gears[cell] = append(gears[cell], nr.val)
 			}
 		}
-		nr = nr*10 + int(cell.Val-'0')
-	}
-	if nr > 0 && keep {
-		p1 += nr
-		for cell := range stars {
-			gears[cell] = append(gears[cell], nr)
-		}
+		p1 += p1Num
 	}
 
 	for _, g := range gears {

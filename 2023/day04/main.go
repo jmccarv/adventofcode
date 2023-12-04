@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var p1, p2 int
-	re := regexp.MustCompile(`:\s+((?:\d+\s+)+)\|\s+((?:\d+\s*)+)$`)
+	re := regexp.MustCompile(`:\s+(.*)\|\s+(.*)`)
 	s := bufio.NewScanner(os.Stdin)
 
 	var copies = make(map[int]int)

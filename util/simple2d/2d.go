@@ -6,6 +6,10 @@ import (
 	sm "github.com/jmccarv/adventofcode/util/math"
 )
 
+type Bounder interface {
+	Bounds() Box
+}
+
 type Point struct {
 	X, Y int
 }
@@ -39,6 +43,10 @@ func (p Point) MhDistance(q Point) int {
 	return sm.Abs(p.X-q.X) + sm.Abs(p.Y-q.Y)
 }
 
+func (p Point) Bounds() Box {
+	return Box{TL: p, BR: p}
+}
+
 // distance between two points, A & B:
 // AB = √( (x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2 )
 func (p Point) Distance(q Point) float64 {
@@ -49,7 +57,8 @@ type Box struct {
 	TL, BR Point
 }
 
-func (b1 Box) Overlaps(b2 Box) bool {
+func (b1 Box) Overlaps(b Bounder) bool {
+	b2 := b.Bounds()
 	if b1.BR.X < b2.TL.X || b1.TL.X > b2.BR.X {
 		return false
 	}
@@ -59,11 +68,13 @@ func (b1 Box) Overlaps(b2 Box) bool {
 	return true
 }
 
-func (b1 Box) Equals(b2 Box) bool {
+func (b1 Box) Equals(b Bounder) bool {
+	b2 := b.Bounds()
 	return b1.TL.Equals(b2.TL) && b1.BR.Equals(b2.BR)
 }
 
-func (b1 Box) Contains(b2 Box) bool {
+func (b1 Box) Contains(b Bounder) bool {
+	b2 := b.Bounds()
 	return b1.TL.X <= b2.TL.X && b1.TL.Y <= b2.TL.Y && b1.BR.X >= b2.BR.X && b1.BR.Y >= b2.BR.Y
 }
 
@@ -77,4 +88,8 @@ func (b Box) NrPoints() int {
 
 func (b Box) Translate(by Point) Box {
 	return Box{TL: b.TL.Add(by), BR: b.BR.Add(by)}
+}
+
+func (b Box) Bounds() Box {
+	return b
 }

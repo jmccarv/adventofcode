@@ -1,10 +1,11 @@
 #!/usr/bin/env perl
 
 use v5.10;
+use Data::Dumper qw (Dumper);
 
 while (<>) {
     $id++; $wins=0;
-    ($winning, $numbers) = map { [split /\s+/] } /:\s+((?:\d+\s+)+)\|\s+((?:\d+\s*)+)$/;
+    ($winning, $numbers) = map { [split /\s+/] } /:\s+(.*)\|\s+(.*)$/;
     %winning = map { $_ => 1 } @$winning;
     $wins += $winning{$_} for (@$numbers);
     $p1 += 2**($wins-1) if $wins;

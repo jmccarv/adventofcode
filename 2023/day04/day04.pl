@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 
 use v5.10;
-use Data::Dumper qw (Dumper);
 
 while (<>) {
     $id++; $wins=0;

@@ -6,7 +6,6 @@ import (
 	"math"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -19,18 +18,14 @@ func main() {
 	id := 0
 	for s.Scan() {
 		id++
-		var winning = make(map[int]struct{})
+		var winning = make(map[string]int)
 		matches := re.FindStringSubmatch(s.Text())
 		for _, nr := range strings.Fields(matches[1]) {
-			val, _ := strconv.Atoi(nr)
-			winning[val] = struct{}{}
+			winning[nr] = 1
 		}
 		wins := 0
 		for _, nr := range strings.Fields(matches[2]) {
-			val, _ := strconv.Atoi(nr)
-			if _, ok := winning[val]; ok {
-				wins++
-			}
+			wins += winning[nr]
 		}
 		p2 += copies[id] + 1
 		if wins > 0 {

@@ -115,11 +115,21 @@ func (gb *GameBoard) Slice(from s2d.Box) *GameBoard {
 	return &n
 }
 
-func (gb *GameBoard) Neighbors(of s2d.Point) *GameBoard {
+func (gb *GameBoard) NeighborSlice(of s2d.Point) *GameBoard {
 	return gb.Slice(s2d.Box{
 		TL: of.Sub(s2d.Point{1, 1}),
 		BR: of.Add(s2d.Point{1, 1}),
 	})
+}
+
+func (gb *GameBoard) NeighboringCells(of s2d.Point) []GBCell {
+	var ret []GBCell
+	for _, cell := range gb.NeighborSlice(of).Flat() {
+		if !cell.Loc.Equals(of) {
+			ret = append(ret, cell)
+		}
+	}
+	return ret
 }
 
 func (gb *GameBoard) Flat() []GBCell {
@@ -155,7 +165,7 @@ func main() {
 			nr, keep = 0, false
 			continue
 		}
-		for _, n := range gb.Neighbors(cell.Loc).Flat() {
+		for _, n := range gb.NeighboringCells(cell.Loc) {
 			if isSym(n.Val) {
 				keep = true
 				if n.Val == '*' {

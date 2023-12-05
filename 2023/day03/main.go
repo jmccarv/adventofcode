@@ -26,7 +26,6 @@ func (c GBCell) Dump() string {
 		sym = "+"
 	}
 	return fmt.Sprintf("[%d,%d %s%s]", c.Loc.X, c.Loc.Y, string(c.Val), sym)
-	//return fmt.Sprintf("%+v %s(%s)  ", c.Loc, string(c.Val), sym)
 }
 
 func (c GBCell) Equals(d GBCell) bool {
@@ -35,28 +34,35 @@ func (c GBCell) Equals(d GBCell) bool {
 
 // game boards are expected to be square
 type GameBoard struct {
-	Rows, Cols int
-	Max        s2d.Point
-	Empty      rune
-	Cells      [][]GBCell
+	Max   s2d.Point
+	Empty rune
+	Cells [][]GBCell
 }
 
 func ReadGameBoard(r io.Reader, empty rune) *GameBoard {
 	gb := GameBoard{Empty: empty}
 	s := bufio.NewScanner(r)
+	y, x := 0, 0
 	for s.Scan() {
-		x := 0
+		x = 0
 		var cells []GBCell
 		for _, r := range s.Text() {
-			cells = append(cells, GBCell{Loc: s2d.Point{x, gb.Rows}, Val: r})
+			cells = append(cells, GBCell{Loc: s2d.Point{x, y}, Val: r})
 			x++
 		}
 		gb.Cells = append(gb.Cells, cells)
-		gb.Rows++
+		y++
 	}
-	gb.Cols = len(gb.Cells[0])
-	gb.Max = s2d.Point{X: gb.Cols - 1, Y: gb.Rows - 1}
+	gb.Max = s2d.Point{x - 1, y - 1}
 	return &gb
+}
+
+func (gb *GameBoard) Rows() int {
+	return gb.Max.Y + 1
+}
+
+func (gb *GameBoard) Cols() int {
+	return gb.Max.X + 1
 }
 
 func (gb *GameBoard) Bounds() s2d.Box {
@@ -64,7 +70,7 @@ func (gb *GameBoard) Bounds() s2d.Box {
 }
 
 func (gb *GameBoard) String() string {
-	ret := fmt.Sprintf("Rows: %d Cols: %d Max: %+v Empty '%v'\n", gb.Rows, gb.Cols, gb.Max, gb.Empty)
+	ret := fmt.Sprintf("Rows: %d Cols: %d Max: %+v Empty '%v'\n", gb.Rows(), gb.Cols(), gb.Max, gb.Empty)
 	for _, r := range gb.Cells {
 		if ret != "" {
 			ret += "\n"
@@ -77,7 +83,7 @@ func (gb *GameBoard) String() string {
 }
 
 func (gb *GameBoard) Dump() string {
-	ret := fmt.Sprintf("Rows: %d Cols: %d Max: %+v Empty '%v'\n", gb.Rows, gb.Cols, gb.Max, gb.Empty)
+	ret := fmt.Sprintf("Rows: %d Cols: %d Max: %+v Empty '%v'\n", gb.Rows(), gb.Cols(), gb.Max, gb.Empty)
 	for _, r := range gb.Cells {
 		if ret != "" {
 			ret += "\n"
@@ -103,17 +109,12 @@ func (gb *GameBoard) Slice(from s2d.Box) *GameBoard {
 	from.TL = from.TL.Max(s2d.Point{0, 0})
 	from.BR = from.BR.Min(gb.Max)
 	max := from.BR.Sub(from.TL)
-	//fmt.Println("from", from, "max", max)
 	n := GameBoard{
-		Rows:  max.Y + 1,
-		Cols:  max.X + 1,
 		Max:   max,
 		Empty: gb.Empty,
 	}
-	//fmt.Printf("%+v\n", n)
-	for y := 0; y < n.Rows; y++ {
-		//fmt.Println(y, len(gb.Cells[y]), from.TL.Y, from.TL.X)
-		n.Cells = append(n.Cells, gb.Cells[from.TL.Y+y][from.TL.X:from.TL.X+n.Cols])
+	for y := 0; y < n.Rows(); y++ {
+		n.Cells = append(n.Cells, gb.Cells[from.TL.Y+y][from.TL.X:from.TL.X+n.Cols()])
 	}
 
 	return &n

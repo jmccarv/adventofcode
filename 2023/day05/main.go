@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type rangeMap struct {
@@ -79,14 +80,28 @@ func main() {
 		p1 = min(p1, mapSeed(seed, maps))
 	}
 
-	p2 := math.MaxInt
+	ch := make(chan int)
+	var wg sync.WaitGroup
 	for i := 0; i < len(seeds); i += 2 {
 		fmt.Println("seed range", seeds[i], seeds[i+1])
-		for seed := seeds[i]; seed < seeds[i]+seeds[i+1]; seed++ {
-			p2 = min(p2, mapSeed(seed, maps))
-		}
+		wg.Add(1)
+		go func(i int) {
+			nr := math.MaxInt
+			for seed := seeds[i]; seed < seeds[i]+seeds[i+1]; seed++ {
+				nr = min(nr, mapSeed(seed, maps))
+			}
+			ch <- nr
+			wg.Done()
+		}(i)
 	}
-	//fmt.Println(maps)
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+	p2 := math.MaxInt
+	for nr := range ch {
+		p2 = min(p2, nr)
+	}
 	fmt.Println("Part 1", p1)
 	fmt.Println("Part 2", p2)
 }

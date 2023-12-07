@@ -57,22 +57,5 @@ sub part2 {
             $l = $m+1;
         }
     }
-    my $left = $m;
-
-    $l = $time / 2+1;
-    $r = $time;
-    while ($l <= $r) {
-        $m = $l + ($r - $l)/2;
-        if (calc($m, $time) > $dist) {
-            if (calc($m+1, $time) <= $dist) {
-                last
-            }
-            $l = $m+1;
-        } else {
-            $r = $m-1;
-        }
-    }
-    my $right = $m;
-
-    say "Part2 $left - $right = ",$right-$left+1;
+    say "Part2 ", $time-($m-1)*2-1;
 }

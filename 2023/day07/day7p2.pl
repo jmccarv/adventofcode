@@ -7,20 +7,16 @@ use List::Util qw(max sum);
 use v5.10;
 
 my %sort_map = (A => 'z', K => 'y', Q => 'x', J => '/', T => 'v');
+sub sort_map { $sort_map{$_[0]} // $_[0] }
+
 my @data;
 while (<>) {
     my @d = split /\s/;
     push @data, { classify(hand => $d[0], bid => $d[1]) };
 }
-@data = sort hand_cmp @data;
-# say Dumper(\@data);
 
 my $rank = 1;
-my $p2 = sum map { $_->{bid} * $rank++ } @data;
-say "Part2 ", $p2;
-
-sub hand_sort_key { join ('', map { $sort_map{$_} } split //, shift) }
-sub sort_map { $sort_map{$_[0]} // $_[0] }
+say "Part2 ", sum map { $_->{bid} * $rank++ } sort hand_cmp @data;
 
 sub classify {
     my %d = @_;
@@ -56,7 +52,6 @@ sub card_cmp {
 }
 
 sub hand_cmp {
-    return  1 if $a->{type} > $b->{type};
-    return -1 if $a->{type} < $b->{type};
+    $a->{type} <=> $b->{type} ||
     $a->{sort_key} cmp $b->{sort_key};
 }

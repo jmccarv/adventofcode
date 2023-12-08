@@ -33,7 +33,7 @@ sub classify {
         delete $cards{J};
         my @cards = reverse sort card_cmp map { { card => $_, count => $cards{$_} } } keys %cards;
         $cards[0]->{count} += $j;
-        $cards{$cards[0]->{card}} += $j;
+        $cards{$cards[0]->{card} // 'J'} += $j;
     }
 
     my $maxdup = max values %cards;

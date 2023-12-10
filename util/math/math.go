@@ -58,3 +58,28 @@ func Abs[T Signed](a T) T {
 	}
 	return a
 }
+
+// gcd and lcd functions stolen from the internets
+// https://siongui.github.io/2017/06/03/go-find-lcm-by-gcd/
+func GCD[T constraints.Integer](a, b T) T {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
+	}
+	return a
+}
+
+func LCM[T constraints.Integer](nums ...T) T {
+	if len(nums) < 2 {
+		return 0
+	}
+
+	a, b := nums[0], nums[1]
+	ret := a * b / GCD(a, b)
+
+	for _, i := range nums[2:] {
+		ret = LCM(ret, i)
+	}
+	return ret
+}

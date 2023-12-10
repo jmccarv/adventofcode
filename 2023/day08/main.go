@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	sm "github.com/jmccarv/adventofcode/util/math"
 )
 
 type node struct {
@@ -77,31 +79,6 @@ func part1(nodes map[string]*node) {
 	println("Part1", res)
 }
 
-// gcd and lcd functions stolen from the internets
-// https://siongui.github.io/2017/06/03/go-find-lcm-by-gcd/
-func gcd(a, b int) int {
-	for b != 0 {
-		t := b
-		b = a % b
-		a = t
-	}
-	return a
-}
-
-func lcm(nums ...int) int {
-	if len(nums) < 2 {
-		return 0
-	}
-	a, b := nums[0], nums[1]
-	nums = nums[2:]
-
-	ret := a * b / gcd(a, b)
-	for _, i := range nums {
-		ret = lcm(ret, i)
-	}
-	return ret
-}
-
 // While based on the description of the problem I don't see how
 // the LCM of each path could be guaranteed to be the anser, it
 // does work for the input set provided so ...
@@ -126,5 +103,5 @@ func part2(nodes map[string]*node) {
 			counts = append(counts, count(node))
 		}
 	}
-	fmt.Println("Part2", lcm(counts...))
+	fmt.Println("Part2", sm.LCM(counts...))
 }
